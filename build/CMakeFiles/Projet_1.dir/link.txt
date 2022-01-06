@@ -1,0 +1,1 @@
+/usr/bin/x86_64-linux-gnu-gcc-10 -g -rdynamic CMakeFiles/Projet_1.dir/windows_create.c.o -o Projet_1 
