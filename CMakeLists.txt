@@ -11,6 +11,9 @@ link_directories(${GTK_LIBRARY_DIRS})
 
 add_executable(Projet main.c)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/FindMySQL.cmake")
+message(${CMAKE_MODULE_PATH})
+
 target_link_libraries(Projet ${GTK_LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

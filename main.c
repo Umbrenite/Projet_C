@@ -2,8 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    /*int screen_mod = 0;
-
+    int screen_mod = 0;
     printf("De quelle maniere voulez vous afficher votre tracker ? \n");
     printf("1 = A l'ecrit \n");
     printf("2 = Graphiquement \n");
@@ -33,6 +32,21 @@ int main(int argc, char **argv)
     }
     //FIN DU CHOIX
 
+    if (screen_mod == '1') {
+        FILE *fptr;   
+        char name[30];  
+        fptr = fopen("/home/arthur/Projet_C/log.txt", "w");// open for writing
+        if (fptr == NULL)  
+        {  
+            printf("Le fichier référencé n'existe pas. Créez-le puis relancez le code. \n");  
+            return 0;  
+        }      
+        printf("Entrez le nom du produit que vous souhaitez tracer\n");  
+        scanf("%s", name);  
+        fprintf(fptr, "Lien demandé : https://www.amazon.fr/s?k=%s\n", name);  
+        fclose(fptr);
+    }
+
     if (screen_mod == '2') {
         GtkApplication *app;
         int status;
@@ -43,25 +57,6 @@ int main(int argc, char **argv)
         g_object_unref(app);
 
         return status;
-    }*/
-    FILE *fptr;  
-    int id;  
-    char name[30];  
-    float salary;  
-    fptr = fopen("/home/arthur/Projet/BDD.txt", "w+");/*  open for writing */  
-    if (fptr == NULL)  
-    {  
-        printf("File does not exists \n");  
-        return;  
-    }  
-    printf("Enter the id\n");  
-    scanf("%d", &id);  
-    fprintf(fptr, "Id= %d\n", id);  
-    printf("Enter the name \n");  
-    scanf("%s", name);  
-    fprintf(fptr, "Name= %s\n", name);  
-    printf("Enter the salary\n");  
-    scanf("%f", &salary);  
-    fprintf(fptr, "Salary= %.2f\n", salary);  
-    fclose(fptr);  
+    }
+
 }

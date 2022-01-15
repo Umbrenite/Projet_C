@@ -6,16 +6,18 @@
 
 #IncludeRegexTransform: 
 
-/home/arthur/Projet/main.c
+/home/arthur/Projet_C/main.c
 windows_create.c
-/home/arthur/Projet/windows_create.c
+/home/arthur/Projet_C/windows_create.c
 
-/home/arthur/Projet/windows_create.c
+/home/arthur/Projet_C/windows_create.c
+gtk/gtk.h
+-
 stdio.h
 -
 stdlib.h
 -
-gtk/gtk.h
+mariadb/mysql.h
 -
 
 /usr/include/atk-1.0/atk/atk-enum-types.h

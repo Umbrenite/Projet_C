@@ -1,4 +1,4 @@
-# Install script for directory: /home/arthur/Projet
+# Install script for directory: /home/arthur/Projet_C
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/arthur/Projet/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/arthur/Projet_C/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
