@@ -1,36 +1,67 @@
-# - Find mysqlclient
-# Find the native MySQL includes and library
-#
-#  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
-#  MYSQL_LIBRARIES   - List of libraries when using MySQL.
-#  MYSQL_FOUND       - True if MySQL found.
-#
-# Based on: http://www.itk.org/Wiki/CMakeUserFindMySQL
+# FindMySQL.cmake
 
-find_path( MYSQL_INCLUDE_DIR "mysql.h"
-  PATH_SUFFIXES "mysql" )
-
-set( MYSQL_NAMES mysqlclient mysqlclient_r )
-find_library( MYSQL_LIBRARY
-  NAMES ${MYSQL_NAMES}
-  PATH_SUFFIXES "mysql" )
-mark_as_advanced( MYSQL_LIBRARY MYSQL_INCLUDE_DIR )
-
-if( MYSQL_INCLUDE_DIR AND EXISTS "${MYSQL_INCLUDE_DIR}/mysql_version.h" )
-  file( STRINGS "${MYSQL_INCLUDE_DIR}/mysql_version.h" MYSQL_VERSION_H REGEX "^#define[ \t]+MYSQL_SERVER_VERSION[ \t]+\"[^\"]+\".*$" )
-  string( REGEX REPLACE "^.*MYSQL_SERVER_VERSION[ \t]+\"([^\"]+)\".*$" "\\1" MYSQL_VERSION_STRING "${MYSQL_VERSION_H}" )
+if(DEFINED MSVC)
+    if(USE_MARIADB)
+        find_path(MySQL_INCLUDE_DIR
+            NAMES mariadb_version.h
+            PATH_SUFFIXES include
+        )
+        find_library(MySQL_LIBRARY
+            NAMES libmariadb
+            PATH_SUFFIXES lib
+        )
+    else()
+        set(SEARCH_PATHS
+            "$ENV{ProgramFiles}/MySQL/MySQL Server 8.0"
+            "$ENV{ProgramFiles}/MySQL/MySQL Server 5.7"
+            "$ENV{ProgramFiles}/MySQL/MySQL Server 5.6"
+            "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 8.0"
+            "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 5.7"
+            "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 5.6"
+        )
+        find_path(MySQL_INCLUDE_DIR
+            NAMES mysql_version.h
+            PATHS ${SEARCH_PATHS}
+            PATH_SUFFIXES include
+        )
+        find_library(MySQL_LIBRARY
+            NAMES libmysql
+            PATHS ${SEARCH_PATHS}
+            PATH_SUFFIXES lib
+        )
+    endif()
+else()
+    if(USE_MARIADB)
+        find_path(MySQL_INCLUDE_DIR
+            NAMES mariadb_version.h
+            PATH_SUFFIXES mariadb mysql
+        )
+        find_library(MySQL_LIBRARY NAMES mariadb)
+    else()
+        find_path(MySQL_INCLUDE_DIR
+            NAMES mysql_version.h
+            PATH_SUFFIXES mysql
+        )
+        find_library(MySQL_LIBRARY
+            NAMES mysqlclient mysqlclient_r
+            PATH_SUFFIXES mysql  # for CentOS 7
+        )
+    endif()
 endif()
 
-# handle the QUIETLY and REQUIRED arguments and set MYSQL_FOUND to TRUE if
-# all listed variables are TRUE
-# include( FindPackageHandleStandardArgs )
-# FIND_PACKAGE_HANDLE_STANDARD_ARGS( MYSQL
-#   REQUIRED_VARS MYSQL_LIBRARY MYSQL_INCLUDE_DIR
-#   VERSION_VAR MYSQL_VERSION_STRING )
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+    MySQL
+    MySQL_INCLUDE_DIR
+    MySQL_LIBRARY
+)
 
-if(MYSQL_LIBRARY AND MYSQL_INCLUDE_DIR)
-  set(MYSQL_FOUND TRUE)
-  set( MYSQL_LIBRARIES ${MYSQL_LIBRARY} )
-  set( MYSQL_INCLUDE_DIRS ${PCRE_INCLUDE_DIR} )
-  message( STATUS "Found MySQL: ${MYSQL_LIBRARY}, ${MYSQL_INCLUDE_DIR}")
+if(MySQL_FOUND AND NOT TARGET MySQL::MySQL)
+    add_library(MySQL::MySQL UNKNOWN IMPORTED)
+    target_include_directories(MySQL::MySQL INTERFACE "${MySQL_INCLUDE_DIR}")
+    set_target_properties(MySQL::MySQL PROPERTIES
+        IMPORTED_LOCATION "${MySQL_LIBRARY}"
+        IMPORTED_LINK_INTERFACE_LANGUAGES "C")
 endif()
+
+mark_as_advanced(MySQL_INCLUDE_DIR MySQL_LIBRARY)

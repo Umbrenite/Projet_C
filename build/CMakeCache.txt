@@ -14,12 +14,6 @@
 # EXTERNAL cache entries
 ########################
 
-//The directory containing a CMake configuration file for /home/arthur/Projet_C/cmake/FindMySQL.cmake/MySQL.
-/home/arthur/Projet_C/cmake/FindMySQL.cmake/MySQL_DIR:PATH=/home/arthur/Projet_C/cmake/FindMySQL.cmake/MySQL_DIR-NOTFOUND
-
-//The directory containing a CMake configuration file for /home/arthur/Projet_C/cmake/FindMySQL.cmake.
-/home/arthur/Projet_C/cmake/FindMySQL.cmake_DIR:PATH=/home/arthur/Projet_C/cmake/FindMySQL.cmake_DIR-NOTFOUND
-
 //Build the testing tree.
 BUILD_TESTING:BOOL=ON
 
@@ -305,9 +299,6 @@ CVS_UPDATE_OPTIONS:STRING=-d -A -P
 //Maximum time allowed before CTest will kill the test.
 DART_TESTING_TIMEOUT:STRING=1500
 
-//The directory containing a CMake configuration file for FindMySQL.
-FindMySQL_DIR:PATH=FindMySQL_DIR-NOTFOUND
-
 //Path to a program.
 GITCOMMAND:FILEPATH=/usr/bin/git
 
@@ -323,35 +314,23 @@ MEMORYCHECK_COMMAND:FILEPATH=MEMORYCHECK_COMMAND-NOTFOUND
 //File that contains suppressions for the memory checker
 MEMORYCHECK_SUPPRESSIONS_FILE:FILEPATH=
 
-//Path to a file.
-MYSQL_INCLUDE_DIR:PATH=MYSQL_INCLUDE_DIR-NOTFOUND
-
-//Path to a library.
-MYSQL_LIBRARY:FILEPATH=MYSQL_LIBRARY-NOTFOUND
-
-//The directory containing a CMake configuration file for MySQLConfig.
-MySQLConfig_DIR:PATH=MySQLConfig_DIR-NOTFOUND
+//Path to a program.
+MYSQL_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/mysql_config
 
 //The directory containing a CMake configuration file for MySQL.
-MySQL_DIR:PATH=MySQL_DIR-NOTFOUND
+MySQL_DIR:PATH=/home/arthur/Projet_C/mysql
 
-//The directory containing a CMake configuration file for MySQL_DIR.
-MySQL_DIR_DIR:PATH=MySQL_DIR_DIR-NOTFOUND
+//Path to a file.
+MySQL_INCLUDE_DIR:PATH=/usr/include/mysql
 
-//The directory containing a CMake configuration file for Mysql.
-Mysql_DIR:PATH=Mysql_DIR-NOTFOUND
+//Path to a library.
+MySQL_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libmysqlclient.so
 
 //Path to a program.
 P4COMMAND:FILEPATH=P4COMMAND-NOTFOUND
 
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
-
-//Value Computed by CMake
-Projet_C_BINARY_DIR:STATIC=/home/arthur/Projet_C/build
-
-//Value Computed by CMake
-Projet_C_SOURCE_DIR:STATIC=/home/arthur/Projet_C
 
 //Name of the computer/site where compile is being run
 SITE:STRING=DESKTOP-8M4JJ7R
@@ -364,9 +343,6 @@ SLURM_SRUN_COMMAND:FILEPATH=SLURM_SRUN_COMMAND-NOTFOUND
 
 //Path to a program.
 SVNCOMMAND:FILEPATH=SVNCOMMAND-NOTFOUND
-
-//The directory containing a CMake configuration file for cmake/MySQL.
-cmake/MySQL_DIR:PATH=cmake/MySQL_DIR-NOTFOUND
 
 //Value Computed by CMake
 osef_BINARY_DIR:STATIC=/home/arthur/Projet_C/build
@@ -409,6 +385,9 @@ pkgcfg_lib_GTK_pango-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpango-1.0.so
 
 //Path to a library.
 pkgcfg_lib_GTK_pangocairo-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so
+
+//Path to a library.
+pkgcfg_lib__PC_MYSQL_mysqlclient:FILEPATH=/usr/lib/x86_64-linux-gnu/libmysqlclient.so
 
 
 ########################
@@ -606,6 +585,10 @@ CVSCOMMAND-ADVANCED:INTERNAL=1
 CVS_UPDATE_OPTIONS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: DART_TESTING_TIMEOUT
 DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
+//Details about finding MYSQL
+FIND_PACKAGE_MESSAGE_DETAILS_MYSQL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libmysqlclient.so][/usr/include/mysql][v5.7.37()]
+//Details about finding MySQL
+FIND_PACKAGE_MESSAGE_DETAILS_MySQL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libmysqlclient.so][v()]
 //Details about finding PkgConfig
 FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.29.2()]
 //ADVANCED property for variable: GITCOMMAND
@@ -653,35 +636,10 @@ MAKECOMMAND-ADVANCED:INTERNAL=1
 MEMORYCHECK_COMMAND-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MEMORYCHECK_SUPPRESSIONS_FILE
 MEMORYCHECK_SUPPRESSIONS_FILE-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: MYSQL_INCLUDE_DIR
-MYSQL_INCLUDE_DIR-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: MYSQL_LIBRARY
-MYSQL_LIBRARY-ADVANCED:INTERNAL=1
-MySQL_CFLAGS:INTERNAL=
-MySQL_CFLAGS_I:INTERNAL=
-MySQL_CFLAGS_OTHER:INTERNAL=
-MySQL_FOUND:INTERNAL=
-MySQL_INCLUDEDIR:INTERNAL=
-MySQL_LIBDIR:INTERNAL=
-MySQL_LIBS:INTERNAL=
-MySQL_LIBS_L:INTERNAL=
-MySQL_LIBS_OTHER:INTERNAL=
-MySQL_LIBS_PATHS:INTERNAL=
-MySQL_MODULE_NAME:INTERNAL=
-MySQL_PREFIX:INTERNAL=
-MySQL_STATIC_CFLAGS:INTERNAL=
-MySQL_STATIC_CFLAGS_I:INTERNAL=
-MySQL_STATIC_CFLAGS_OTHER:INTERNAL=
-MySQL_STATIC_LIBDIR:INTERNAL=
-MySQL_STATIC_LIBS:INTERNAL=
-MySQL_STATIC_LIBS_L:INTERNAL=
-MySQL_STATIC_LIBS_OTHER:INTERNAL=
-MySQL_STATIC_LIBS_PATHS:INTERNAL=
-MySQL_VERSION:INTERNAL=
-MySQL_mysqlclient_INCLUDEDIR:INTERNAL=
-MySQL_mysqlclient_LIBDIR:INTERNAL=
-MySQL_mysqlclient_PREFIX:INTERNAL=
-MySQL_mysqlclient_VERSION:INTERNAL=
+//ADVANCED property for variable: MySQL_INCLUDE_DIR
+MySQL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MySQL_LIBRARY
+MySQL_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: P4COMMAND
 P4COMMAND-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
@@ -694,8 +652,45 @@ SLURM_SBATCH_COMMAND-ADVANCED:INTERNAL=1
 SLURM_SRUN_COMMAND-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: SVNCOMMAND
 SVNCOMMAND-ADVANCED:INTERNAL=1
+_PC_MYSQL_CFLAGS:INTERNAL=-I/usr/include/mysql
+_PC_MYSQL_CFLAGS_I:INTERNAL=
+_PC_MYSQL_CFLAGS_OTHER:INTERNAL=
+_PC_MYSQL_FOUND:INTERNAL=1
+_PC_MYSQL_INCLUDEDIR:INTERNAL=/usr/include/mysql
+_PC_MYSQL_INCLUDE_DIRS:INTERNAL=/usr/include/mysql
+_PC_MYSQL_LDFLAGS:INTERNAL=-lmysqlclient
+_PC_MYSQL_LDFLAGS_OTHER:INTERNAL=
+_PC_MYSQL_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+_PC_MYSQL_LIBRARIES:INTERNAL=mysqlclient
+_PC_MYSQL_LIBRARY_DIRS:INTERNAL=
+_PC_MYSQL_LIBS:INTERNAL=
+_PC_MYSQL_LIBS_L:INTERNAL=
+_PC_MYSQL_LIBS_OTHER:INTERNAL=
+_PC_MYSQL_LIBS_PATHS:INTERNAL=
+_PC_MYSQL_MODULE_NAME:INTERNAL=mysqlclient
+_PC_MYSQL_PREFIX:INTERNAL=/usr
+_PC_MYSQL_STATIC_CFLAGS:INTERNAL=-I/usr/include/mysql
+_PC_MYSQL_STATIC_CFLAGS_I:INTERNAL=
+_PC_MYSQL_STATIC_CFLAGS_OTHER:INTERNAL=
+_PC_MYSQL_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/mysql
+_PC_MYSQL_STATIC_LDFLAGS:INTERNAL=-lmysqlclient;-lpthread;-lm;-lrt;-latomic;-ldl
+_PC_MYSQL_STATIC_LDFLAGS_OTHER:INTERNAL=
+_PC_MYSQL_STATIC_LIBDIR:INTERNAL=
+_PC_MYSQL_STATIC_LIBRARIES:INTERNAL=mysqlclient;pthread;m;rt;atomic;dl
+_PC_MYSQL_STATIC_LIBRARY_DIRS:INTERNAL=
+_PC_MYSQL_STATIC_LIBS:INTERNAL=
+_PC_MYSQL_STATIC_LIBS_L:INTERNAL=
+_PC_MYSQL_STATIC_LIBS_OTHER:INTERNAL=
+_PC_MYSQL_STATIC_LIBS_PATHS:INTERNAL=
+_PC_MYSQL_VERSION:INTERNAL=20.3.24
+_PC_MYSQL_mysqlclient_INCLUDEDIR:INTERNAL=
+_PC_MYSQL_mysqlclient_LIBDIR:INTERNAL=
+_PC_MYSQL_mysqlclient_PREFIX:INTERNAL=
+_PC_MYSQL_mysqlclient_VERSION:INTERNAL=
 __pkg_config_arguments_GTK:INTERNAL=REQUIRED;gtk+-3.0
+__pkg_config_arguments__PC_MYSQL:INTERNAL=mysqlclient;QUIET
 __pkg_config_checked_GTK:INTERNAL=1
+__pkg_config_checked__PC_MYSQL:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_GTK_atk-1.0
 pkgcfg_lib_GTK_atk-1.0-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_GTK_cairo
@@ -720,5 +715,7 @@ pkgcfg_lib_GTK_harfbuzz-ADVANCED:INTERNAL=1
 pkgcfg_lib_GTK_pango-1.0-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_GTK_pangocairo-1.0
 pkgcfg_lib_GTK_pangocairo-1.0-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib__PC_MYSQL_mysqlclient
+pkgcfg_lib__PC_MYSQL_mysqlclient-ADVANCED:INTERNAL=1
 prefix_result:INTERNAL=/usr/lib/x86_64-linux-gnu
 

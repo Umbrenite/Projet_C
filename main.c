@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    int screen_mod = 0;
+    /*int screen_mod = 0;
     printf("De quelle maniere voulez vous afficher votre tracker ? \n");
     printf("1 = A l'ecrit \n");
     printf("2 = Graphiquement \n");
@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     }
     //FIN DU CHOIX
 
+    //À L'ÉCRIT
     if (screen_mod == '1') {
         FILE *fptr;   
         char name[30];  
@@ -46,7 +47,9 @@ int main(int argc, char **argv)
         fprintf(fptr, "Lien demandé : https://www.amazon.fr/s?k=%s\n", name);  
         fclose(fptr);
     }
+    //À L'ÉCRIT
 
+    //GRAPHIQUEMENT
     if (screen_mod == '2') {
         GtkApplication *app;
         int status;
@@ -58,5 +61,30 @@ int main(int argc, char **argv)
 
         return status;
     }
+    //GRAPHIQUEMENT*/
+
+    //MYSQL
+
+MYSQL *conn;
+MYSQL_RES *res;
+MYSQL_ROW row;
+
+char *server = "localhost";
+char *user = "root";
+char *password = "rootarthur";
+char *database = "mysql";
+
+conn = mysql_init(NULL);
+
+/* Connect to database */
+if (!mysql_real_connect(conn, server,user, password, database, 0, NULL, 0))
+{
+    fprintf(stderr, "%s\n", mysql_error(conn));
+    exit(0);
+}
+
+  return 0;
+
+    //MYSQL
 
 }
