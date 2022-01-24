@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mysql/mysql.h>
+#include <unistd.h>
 
 void button_clicked(GtkWidget *widget,gpointer data)
 {
