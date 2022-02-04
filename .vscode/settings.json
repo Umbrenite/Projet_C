@@ -1,0 +1,8 @@
+{
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "mysql.h": "c",
+        "stdio.h": "c",
+        "gtk.h": "c"
+    }
+}
