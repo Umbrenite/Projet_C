@@ -142,22 +142,22 @@ char* connect_into_mysql(char *register_file_path, char *log_file_path)
                 fprintf(stdout, "[OK] Les identifiants récupérés depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
 
                 printf("[RECHERCHE D'UN PRODUIT]\n");
-                printf("Entrez maintenant le nom du produit que vous souhaitez tracer (Espacer les termes avec un underscore) \n"); //On indique le nom du produit recherché
+                printf("Entrez maintenant le nom du produit que vous souhaitez tracer \n"); //On indique le nom du produit recherché
                 char data[100] = {0};
                 char *replace; //Pointeur de remplacement de l'espace par un underscore
                 scanf("%c", &data);
                 fgets(data, 100, stdin);
                 data[strcspn(data, "\n")] = '\0';
 
-                //Remplacement des espaces par un underscore
+                //Remplacement des espaces par un signe "+"
                 while (replace = strchr(data, ' '))
                 {
                     *replace = '+';
                 }
                 static char url[100];
-                int url_former = snprintf(url, 100, "https://www.amazon.fr/s?k=%s", data);
+                int url_former = snprintf(url, 100, "https://api.zinc.io/v1/search?query=%s&retailer=amazon", data);
                 return url;
-                //l'URL que va suivre le traceur sera placé dans le fichier référencé plus haut. Remplacé à chaque itération.
+                //l'URL que va suivre le traceur sera référencée par l'url_former
 
                 //DEBUT DES REQUÊTES MYSQL
 
@@ -198,30 +198,34 @@ char html_curl(char * log_file_path, char * url)
 {
     CURL *curl;
     CURLcode res;
+    char *token = "25A58CFA811030FC6EAB3252:";
 
-    printf("%s",url);
-
+    /* Initialisation de curl */
+    curl_global_init(CURL_GLOBAL_ALL);
+    
+    /* Initialisation de la libcurl */
     curl = curl_easy_init();
     if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
 
-        /* example.com is redirected, so we tell libcurl to follow redirection */
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        /* Le but de curl ici va être de récupérer le contenu de la 1ère page d'amazon en XML grâce à une API. */
 
-        /* create an output file and prepare to write the response */
-        FILE *output_file = fopen(log_file_path, "w");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_file);
+        curl_easy_setopt(curl, CURLOPT_URL, url); //On utilise l'URL générée afin de pouvoir tracker nos produits
+        curl_easy_setopt(curl, CURLOPT_USERPWD, "25A58CFA811030FC6EAB3252:"); //On utilise le token d'authentifiacation de l'API afin de pouvoir l'utiliser
 
-        /* Perform the request, res will get the return code */
+    //Écriture sur le fichier log.txt
+        FILE *output_file = fopen(log_file_path, "w"); //On ouvre une fonction de file afin d'écrire dans le fichier log.txt
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_file); //On écrit le contenu récupéré dans le fichier log.txt
+    
+        /* Test de requête (CURLE_OK en variable binaire qui vérifie si la requête s'est bien passée) */
         res = curl_easy_perform(curl);
-
-        /* Check for errors */
-        if(res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %sn", 
+        /* Si res est différent de CURLE_OK, alors il y'a une erreur */
+        if(res != CURLE_OK)
+        fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
-        }
-
+    
         /* always cleanup */
         curl_easy_cleanup(curl);
     }
+    curl_global_cleanup();
+
 }
