@@ -3,6 +3,7 @@
     "files.associations": {
         "mysql.h": "c",
         "stdio.h": "c",
-        "gtk.h": "c"
+        "gtk.h": "c",
+        "cstdlib": "c"
     }
 }
