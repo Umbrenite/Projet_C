@@ -4,6 +4,10 @@
         "mysql.h": "c",
         "stdio.h": "c",
         "gtk.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "easy.h": "c",
+        "math.h": "c",
+        "include.h": "c",
+        "unistd.h": "c"
     }
 }

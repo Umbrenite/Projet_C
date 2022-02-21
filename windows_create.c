@@ -1,6 +1,3 @@
-#include "include.c"
-
-
 void create_window(const char* glade_file){
         GtkWidget *window;
         GtkWidget *fixed1;

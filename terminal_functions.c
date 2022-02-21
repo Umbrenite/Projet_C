@@ -1,16 +1,12 @@
-#include "include.c"
-
 void confirm_paths(char *log_file_path)
 {
     char confirm;                                                                                                 // On initialise une valeur pour demander confirmation à l'utilisateur du chemin de référence
     printf("Veuillez confirmer que le chemin de votre fichier de log se trouve ici : %s (y/n)\n", log_file_path); // On demande à l'user de confirmer si le log.txt se trouve ici
-    scanf("%c", &confirm);
 
     // DEBUT DE LA BOUCLE
-    while (confirm != 'n' && confirm != 'y')
+    while (scanf("%c", &confirm), confirm != 'n' && confirm != 'y')
     {
         puts("Je n'ai pas compris votre requête. Écrivez 'y' si vous confirmez votre demande et 'n' pour la réfuter.");
-        scanf("%c", &confirm);
     }
 
     if (confirm == 'n') // S'il ne confirme pas, on lui demande de rentrer le chemin manuellement
@@ -58,8 +54,8 @@ int select_mod()
         }
         if (screen_mod == '1' || screen_mod == '2')
         {
-            printf("\n");
-            return (char)screen_mod;
+            puts("");
+            return (char) screen_mod;
         }
     }
 };
@@ -74,7 +70,7 @@ char *url_former()
     char *replace; // Pointeur de remplacement de l'espace par un underscore
     scanf("%c", &data);
     fgets(data, 100, stdin);
-    data[strcspn(data, "\n")] = '\0';
+    removeLineFeed(data);
 
     // Remplacement des espaces par un signe "+"
     while (replace = strchr(data, ' '))
@@ -122,7 +118,7 @@ void write_curl(char *log_file_path, char *url)
         /* always cleanup */
         curl_easy_cleanup(curl);
         puts("Notre API nous a permis de trouver une page de résultat. Nous allons traiter ces données.");
-        sleep(3);
+        // sleep(3);
     }
     curl_global_cleanup();
 }
@@ -136,7 +132,7 @@ void finish_with_error(MYSQL *mysql)
     exit(1);
 }
 
-void *connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql)
+void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql)
 {
     char name[30];
     // DÉBUT MYSQL
@@ -157,7 +153,7 @@ void *connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *m
         {
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
             fprintf(stdout, "[OK] la fonction mysql_init est bien prise en compte\n");
-            sleep(2);
+            // sleep(2);
 
             FILE *rec;
             rec = fopen(register_file_path, "r");
@@ -198,7 +194,7 @@ void *connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *m
                 fscanf(rec, "%s", IP);          // Récupération de l'IP
                 fscanf(rec, "%s", db_username); // Récupération du username référencé dans le fichier de *rec
                 fscanf(rec, "%s", db_pwd);      // Récupération du password référencé dans le fichier de *rec
-                sleep(2);
+                // sleep(2);
             }
 
             // Connexion au serveur mysql
@@ -208,7 +204,7 @@ void *connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *m
             // Syntaxe : mysql_real_connect(mysql, IP,username,password,db); -> tentative de connection à la DB
             {
                 fprintf(stdout, "[OK] Les identifiants récupérés depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
-                sleep(2);
+                // sleep(2);
                 // DEBUT DES REQUÊTES MYSQL
                     //Création de la table "c_project"
                     if (mysql_query(mysql, "CREATE DATABASE IF NOT EXISTS c_project"))
@@ -217,7 +213,7 @@ void *connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *m
                     }
                     puts("[REQUÊTES SUR LA BASE DE DONNÉES]");
                     puts("Base de données créée\n");
-                    sleep(1);
+                    // sleep(1);
 
                     //On entre dans la base de données que l'on vient de créer
                     if (mysql_query(mysql, "USE c_project"))
@@ -225,39 +221,198 @@ void *connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *m
                         finish_with_error(mysql);
                     }
                     puts("Nous utiliserons la base de données créée afin d'y insérer les données trouvées.");
-                    sleep(3);
+                    // sleep(3);
 
                     puts ("D'après les résultats de notre recherche, nous avons trouvé ces résultats :");
                     //On affiche les 10 premiers résultats de la liste trouvée (titre, prix, avis, nombre d'avis)
                     FILE *read_file = fopen(log_file_path, "r");
+                    if (read_file == NULL) {
+                        fprintf(stderr, "oh no cringe");
+                        return;
+                    }
 
                     char file_reader[150];
-                    char title[150]; //Titre de l'objet
-                    int price; //Prix
-                    int rates; //Avis (nombre d'étoiles)
-                    int num_rates; //Nombre d'avis
-                    int count_search = 1;
+                    char title[10][150]; //Titre de l'objet
+                    char price[150]; //Prix
+                    char stars[10][150]; //Avis (nombre d'étoiles)
+                    char num_rates[10][150]; //Nombre d'avis
 
-                    //On va afficher l'intégralité des données trouvées ici
+                    int price_converted;
+                    int count_search = 0;
+                    char* replace;
+                    int ask_article;
+
                     while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 11) {
-                        if(strstr(file_reader, "title") != NULL) {
-                            puts("\n--------------------------------------");
+                        if(strstr(file_reader, "product_id") != NULL) {
                             printf("Article N°%d",count_search);
-                            printf("%s\n", file_reader);
+                            puts("\n--------------------------------------");
+                        }
+                        if(strstr(file_reader, "title") != NULL) {
+                            memcpy(title, file_reader + 15, sizeof(file_reader));
+                            // strcpy(title[count_search - 1], file_reader + 15);
+
+                            printf("Titre de l'article : %s", title);
+                            
+                        }
+                        if (strstr(file_reader, "price") != NULL) {
+                            memcpy(price, file_reader + 15, sizeof(file_reader));
+                            // strcpy(price[count_search - 1], file_reader + 15);
+                            while (replace = strchr(price, ',')) {
+                                *replace = ' ';
+                            }
+                            price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
+                           //printf("Prix sans conversion : %d", price_converted);
+                           printf("Prix : %d,%d€\n", price_converted/100, price_converted%100);
+                        }
+                        if (strstr(file_reader, "stars") != NULL) {
+                            memcpy(stars, file_reader + 15, sizeof(file_reader));
+                            //strcpy(stars[count_search - 1], file_reader + 15);
+                            // while (replace = strchr(stars, ',')) {
+                            //     *replace = ' ';
+                            // }
+                            printf("Nombre d'étoiles : %s\n", stars);
+                            // printf("%s\n", file_reader);
                             count_search++;
+                        }
+                        if (strstr(file_reader, "num_reviews") != NULL) {
+                            memcpy(num_rates, file_reader + 21, sizeof(file_reader));
+                            // strcpy(num_rates[count_search - 1], file_reader + 15);
+                            // while (replace = strchr(num_rates, ',')) {
+                            //     *replace = ' ';
+                            // }
+                            printf("Nombre d'évaluations : %s", num_rates);
+                            // printf("%s\n", file_reader);
                         }
                     }
 
+                    puts("Indiquez le numéro du produit que vous recherchiez");
 
-                    // for (int i = 0; i<10;i++){
-                    //     for (int j = 0; i<10;i++){
-                    //         printf("Numéro : %s", i);
-                    //         printf("Nom : %s\n", store_search[i][0]);
-                    //         puts("\n");
+                    // //On va afficher l'intégralité des données trouvées ici
+                    // while (count_search < 10) {
+                    //     // printf("count_search=%d\n", count_search); //tmp
+                    //     fgets(file_reader, sizeof(file_reader), read_file);
+                    //     if (feof(read_file)) {
+                    //         puts("EOF");
+                    //         break;
+                    //     }
+
+                    //     if (strstr(file_reader, "title") != NULL) {
+                    //         // memcpy(title, file_reader + 15, sizeof(file_reader));
+                    //         strcpy(title[count_search - 1], file_reader + 15);
+
+                    //         printf("Titre de l'article : %s\n", title);
+                    //     }
+
+                    //     if (strstr(file_reader, "price") != NULL) {
+                    //         memcpy(price, file_reader + 15, sizeof(file_reader));
+                    //         // strcpy(price[count_search - 1], file_reader + 15);
+                    //         while (replace = strchr(price, ',')) {
+                    //             *replace = ' ';
+                    //         }
+                    //         price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
+                    //        //printf("Prix sans conversion : %d", price_converted);
+                    //        printf("Prix : %d,%d€\n", price_converted/100, price_converted%100);
+
+                    //     }
+
+                    //     if (strstr(file_reader, "stars") != NULL) {
+                    //         // memcpy(stars, file_reader + 15, sizeof(file_reader));
+                    //         strcpy(stars[count_search - 1], file_reader + 15);
+                    //         while (replace = strchr(stars, ',')) {
+                    //             *replace = ' ';
+                    //         }
+                    //         printf("Nombre d'étoiles : %s\n", stars);
+                    //         // printf("%s\n", file_reader);
+                    //     }
+
+                    //     if (strstr(file_reader, "num_reviews") != NULL) {
+                    //         // memcpy(num_rates, file_reader + 21, sizeof(file_reader));
+                    //         strcpy(num_rates[count_search - 1], file_reader + 15);
+                    //         while (replace = strchr(num_rates, ',')) {
+                    //             *replace = ' ';
+                    //         }
+                    //         printf("Nombre d'évaluations : %s", num_rates);
+                    //         // printf("%s\n", file_reader);
+                    //     }
+
+                    //     if (strstr(file_reader, "product_id") != NULL) {
+                    //         printf("Article N°%d\n", ++count_search);
+                    //         // found = 1;
+                    //         puts("product found");
+                    //         puts("--------------------------------------\n");
                     //     }
                     // }
 
-                    puts("Indiquez le numéro du produit que vous recherchiez");
+
+                    // puts("Indiquez le numéro du produit que vous voulez (entre 1 et 10)");
+                    // while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10) {
+                    //     puts("Mauvais nombre");
+                    // }
+
+                    // puts("j'aime le paté");
+
+
+                    // //ENTREE DES VALEURS DANS LES VARIABLES POUR LES ENTRER EN BASE DE DONNEES
+                    // fclose(read_file);
+                    // read_file = NULL;
+
+                    // count_search = 0;
+                    // read_file = fopen(log_file_path, "r");
+                    // if (read_file == NULL) {
+                    //     fprintf(stderr, "zbeub zbeub");
+                    //     return;
+                    // }
+
+                    // printf("Article voulu = %d", ask_article);
+
+
+                    // return;
+
+                    // while ((fgets(file_reader, sizeof(file_reader) / sizeof(*file_reader), read_file) != NULL) && count_search != ask_article) {
+                    //     if (count_search == ask_article) {
+                    //         if (strstr(file_reader, "title") != NULL) {
+                    //             memcpy(title, file_reader + 15, sizeof(file_reader));
+                    //             printf("Vous avez demandé l'article suivant : %s", title);
+                    //         }
+
+                    //         if (strstr(file_reader, "price") != NULL) {
+
+                    //             memcpy(price, file_reader + 15, sizeof(file_reader));
+                    //             while (replace = strchr(price, ',')) {
+                    //                 *replace = ' ';
+                    //             }
+                    //             int price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
+                    //             //printf("Prix sans conversion : %d", price_converted);
+                    //             printf("Prix de l'article demandé: %d,%d€\n", price_converted/100, price_converted%100);
+
+                    //         }
+
+                    //         if (strstr(file_reader, "stars") != NULL) {
+                    //             memcpy(stars, file_reader + 15, sizeof(file_reader));
+                    //             while (replace = strchr(stars, ',')) {
+                    //                 *replace = ' ';
+                    //             }
+                    //             printf("Nombre d'étoiles de l'article demandé : %s\n", stars);
+                    //             // printf("%s\n", file_reader);
+                    //         }
+
+                    //         if (strstr(file_reader, "num_reviews") != NULL) {
+                    //             memcpy(num_rates, file_reader + 21, sizeof(file_reader));
+                    //             while (replace = strchr(num_rates, ',')) {
+                    //                 *replace = ' ';
+                    //             }
+                    //             printf("Nombre d'évaluations de l'article demandé : %s", num_rates);
+                    //             // printf("%s\n", file_reader);
+                    //         }
+                    //     }
+                    // }
+
+
+                    //FIN DE L'ENTREE DES VALEURS
+
+
+
+
                 // FIN DES REQUÊTES MYSQL
             }
             else

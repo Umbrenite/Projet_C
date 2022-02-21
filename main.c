@@ -1,6 +1,4 @@
-#include "windows_create.c"
-#include "include.c"
-#include "terminal_functions.c"
+#include "include.h"
 
 // test du commit
 
