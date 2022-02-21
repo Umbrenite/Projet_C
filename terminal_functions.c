@@ -124,6 +124,14 @@ void write_curl(char *log_file_path, char *url)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
+int ask_article() {
+    int ask_article = 0;
+    puts("Indiquez le numéro du produit que vous souhaitez traquer");
+    while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10) {
+    puts("Mauvais nombre");
+    }
+    return ask_article;
+}
 
 void finish_with_error(MYSQL *mysql)
 {
@@ -221,6 +229,14 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                         finish_with_error(mysql);
                     }
                     puts("Nous utiliserons la base de données créée afin d'y insérer les données trouvées.");
+
+                    if (mysql_query(mysql, "CREATE TABLE IF NOT EXISTS ARTICLES (id_article INT NOT NULL AUTO_INCREMENT,title VARCHAR(100) NOT NULL,price VARCHAR(10),stars VARCHAR(10),nb_eval VARCHAR(10),PRIMARY KEY(id_article));"))
+                    //Commande pour créer la table produit si elle n'existe pas avec les colonnes ID, titre, prix, étoiles, nb_eval
+                    {
+                        finish_with_error(mysql);
+                    }
+
+                   
                     // sleep(3);
 
                     puts ("D'après les résultats de notre recherche, nous avons trouvé ces résultats :");
@@ -236,11 +252,17 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                     char price[150]; //Prix
                     char stars[150]; //Avis (nombre d'étoiles)
                     char num_rates[150]; //Nombre d'avis
+                    char query[150]; //Sert à insérer des données
+
+                    char title_array[10][150]; // Sauvegarde tableau Titre de l'objet
+                    char price_array[10][150]; //Sauvegarde tableau Prix
+                    char stars_array[10][150]; //Sauvegarde tableau Sauvegarde tableau Avis (nombre d'étoiles)
+                    char num_rates_array[10][150]; //Sauvegarde tableau Nombre d'avis
 
                     int price_converted;
                     int count_search = 1;
+                    int i = 0;
                     char* replace;
-                    int ask_article;
 
                     while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 11) {
                         
@@ -251,7 +273,13 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
 
                         if (strstr(file_reader, "title") != NULL) {
                             memcpy(title, file_reader + 15, sizeof(file_reader));
+                            while (replace = strchr(title, ',')) {
+                                *replace = ' ';
+                            }
                             printf("Titre de l'article : %s", title);
+                            for (int j = 0; j < strlen(title); j++) {
+                                title_array[i][j] = title[j];
+                            }
                             
                         }
 
@@ -270,6 +298,9 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                                 *replace = ' ';
                             }
                             printf("Nombre d'évaluations : %s", num_rates); 
+                            for (int j = 0; j < strlen(num_rates); j++) {
+                                num_rates_array[i][j] = num_rates[j];
+                            }
                         }
 
                         if (strstr(file_reader, "stars") != NULL) {
@@ -278,75 +309,26 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                                 *replace = ' ';
                             }
                             printf("Nombre d'étoiles : %s\n", stars);
+                            for (int j = 0; j < strlen(stars); j++) {
+                                stars_array[i][j] = stars[j];
+                            }
                             count_search++;
+                            i++;
                         }
 
                     }
 
-                    puts("Indiquez le numéro du produit que vous souhaitez traquer");
-                    while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10) {
-                        puts("Mauvais nombre");
-                    }
+                    int id_article = ask_article();
+                    printf("Vous avez demandé l'article N°%d", id_article);
 
-                    // //ENTREE DES VALEURS DANS LES VARIABLES POUR LES ENTRER EN BASE DE DONNEES
-                    // fclose(read_file);
-                    // read_file = NULL;
+                    //COMMANDE POUR INSÉRER LES DONNEES DANS LES COLONNES CORRESPONDANTES DE LA TABLE c_project
+                    // sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', %s);", title[id_article],price[id_article],stars[id_article],num_rates[id_article]); 
+                    // mysql_query(mysql, query);
 
-                    // count_search = 0;
-                    // read_file = fopen(log_file_path, "r");
-                    // if (read_file == NULL) {
-                    //     fprintf(stderr, "zbeub zbeub");
-                    //     return;
+                    // if (mysql_query(mysql, "SELECT * FROM ARTICLES"))
+                    // {
+                    //     finish_with_error(mysql);
                     // }
-
-                    // printf("Article voulu = %d", ask_article);
-
-
-                    // return;
-
-                    // while ((fgets(file_reader, sizeof(file_reader) / sizeof(*file_reader), read_file) != NULL) && count_search != ask_article) {
-                    //     if (count_search == ask_article) {
-                    //         if (strstr(file_reader, "title") != NULL) {
-                    //             memcpy(title, file_reader + 15, sizeof(file_reader));
-                    //             printf("Vous avez demandé l'article suivant : %s", title);
-                    //         }
-
-                    //         if (strstr(file_reader, "price") != NULL) {
-
-                    //             memcpy(price, file_reader + 15, sizeof(file_reader));
-                    //             while (replace = strchr(price, ',')) {
-                    //                 *replace = ' ';
-                    //             }
-                    //             int price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
-                    //             //printf("Prix sans conversion : %d", price_converted);
-                    //             printf("Prix de l'article demandé: %d,%d€\n", price_converted/100, price_converted%100);
-
-                    //         }
-
-                    //         if (strstr(file_reader, "stars") != NULL) {
-                    //             memcpy(stars, file_reader + 15, sizeof(file_reader));
-                    //             while (replace = strchr(stars, ',')) {
-                    //                 *replace = ' ';
-                    //             }
-                    //             printf("Nombre d'étoiles de l'article demandé : %s\n", stars);
-                    //             // printf("%s\n", file_reader);
-                    //         }
-
-                    //         if (strstr(file_reader, "num_reviews") != NULL) {
-                    //             memcpy(num_rates, file_reader + 21, sizeof(file_reader));
-                    //             while (replace = strchr(num_rates, ',')) {
-                    //                 *replace = ' ';
-                    //             }
-                    //             printf("Nombre d'évaluations de l'article demandé : %s", num_rates);
-                    //             // printf("%s\n", file_reader);
-                    //         }
-                    //     }
-                    // }
-
-
-                    //FIN DE L'ENTREE DES VALEURS
-
-
 
 
                 // FIN DES REQUÊTES MYSQL
