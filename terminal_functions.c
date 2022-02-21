@@ -23,7 +23,7 @@ void confirm_paths(char *log_file_path)
         scanf("%s", log_file_path);
     }
     // FIN DE LA BOUCLE
-};
+}
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ int select_mod()
             return (char) screen_mod;
         }
     }
-};
+}
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -227,130 +227,66 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                     //On affiche les 10 premiers résultats de la liste trouvée (titre, prix, avis, nombre d'avis)
                     FILE *read_file = fopen(log_file_path, "r");
                     if (read_file == NULL) {
-                        fprintf(stderr, "oh no cringe");
+                        fprintf(stderr, "Le fichier n'a pas pu être lu.");
                         return;
                     }
 
                     char file_reader[150];
-                    char title[10][150]; //Titre de l'objet
+                    char title[150]; //Titre de l'objet
                     char price[150]; //Prix
-                    char stars[10][150]; //Avis (nombre d'étoiles)
-                    char num_rates[10][150]; //Nombre d'avis
+                    char stars[150]; //Avis (nombre d'étoiles)
+                    char num_rates[150]; //Nombre d'avis
 
                     int price_converted;
-                    int count_search = 0;
+                    int count_search = 1;
                     char* replace;
                     int ask_article;
 
                     while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 11) {
-                        if(strstr(file_reader, "product_id") != NULL) {
+                        
+                        if (strstr(file_reader, "product_id") != NULL) {
                             printf("Article N°%d",count_search);
                             puts("\n--------------------------------------");
                         }
-                        if(strstr(file_reader, "title") != NULL) {
-                            memcpy(title, file_reader + 15, sizeof(file_reader));
-                            // strcpy(title[count_search - 1], file_reader + 15);
 
+                        if (strstr(file_reader, "title") != NULL) {
+                            memcpy(title, file_reader + 15, sizeof(file_reader));
                             printf("Titre de l'article : %s", title);
                             
                         }
+
                         if (strstr(file_reader, "price") != NULL) {
                             memcpy(price, file_reader + 15, sizeof(file_reader));
-                            // strcpy(price[count_search - 1], file_reader + 15);
                             while (replace = strchr(price, ',')) {
                                 *replace = ' ';
                             }
                             price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
-                           //printf("Prix sans conversion : %d", price_converted);
                            printf("Prix : %d,%d€\n", price_converted/100, price_converted%100);
                         }
-                        if (strstr(file_reader, "stars") != NULL) {
-                            memcpy(stars, file_reader + 15, sizeof(file_reader));
-                            //strcpy(stars[count_search - 1], file_reader + 15);
-                            // while (replace = strchr(stars, ',')) {
-                            //     *replace = ' ';
-                            // }
-                            printf("Nombre d'étoiles : %s\n", stars);
-                            // printf("%s\n", file_reader);
-                            count_search++;
-                        }
+
                         if (strstr(file_reader, "num_reviews") != NULL) {
                             memcpy(num_rates, file_reader + 21, sizeof(file_reader));
-                            // strcpy(num_rates[count_search - 1], file_reader + 15);
-                            // while (replace = strchr(num_rates, ',')) {
-                            //     *replace = ' ';
-                            // }
-                            printf("Nombre d'évaluations : %s", num_rates);
-                            // printf("%s\n", file_reader);
+                            while (replace = strchr(num_rates, ',')) {
+                                *replace = ' ';
+                            }
+                            printf("Nombre d'évaluations : %s", num_rates); 
                         }
+
+                        if (strstr(file_reader, "stars") != NULL) {
+                            memcpy(stars, file_reader + 15, sizeof(file_reader));
+                            while (replace = strchr(stars, ',')) {
+                                *replace = ' ';
+                            }
+                            printf("Nombre d'étoiles : %s\n", stars);
+                            count_search++;
+                        }
+
                     }
 
-                    puts("Indiquez le numéro du produit que vous recherchiez");
-
-                    // //On va afficher l'intégralité des données trouvées ici
-                    // while (count_search < 10) {
-                    //     // printf("count_search=%d\n", count_search); //tmp
-                    //     fgets(file_reader, sizeof(file_reader), read_file);
-                    //     if (feof(read_file)) {
-                    //         puts("EOF");
-                    //         break;
-                    //     }
-
-                    //     if (strstr(file_reader, "title") != NULL) {
-                    //         // memcpy(title, file_reader + 15, sizeof(file_reader));
-                    //         strcpy(title[count_search - 1], file_reader + 15);
-
-                    //         printf("Titre de l'article : %s\n", title);
-                    //     }
-
-                    //     if (strstr(file_reader, "price") != NULL) {
-                    //         memcpy(price, file_reader + 15, sizeof(file_reader));
-                    //         // strcpy(price[count_search - 1], file_reader + 15);
-                    //         while (replace = strchr(price, ',')) {
-                    //             *replace = ' ';
-                    //         }
-                    //         price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
-                    //        //printf("Prix sans conversion : %d", price_converted);
-                    //        printf("Prix : %d,%d€\n", price_converted/100, price_converted%100);
-
-                    //     }
-
-                    //     if (strstr(file_reader, "stars") != NULL) {
-                    //         // memcpy(stars, file_reader + 15, sizeof(file_reader));
-                    //         strcpy(stars[count_search - 1], file_reader + 15);
-                    //         while (replace = strchr(stars, ',')) {
-                    //             *replace = ' ';
-                    //         }
-                    //         printf("Nombre d'étoiles : %s\n", stars);
-                    //         // printf("%s\n", file_reader);
-                    //     }
-
-                    //     if (strstr(file_reader, "num_reviews") != NULL) {
-                    //         // memcpy(num_rates, file_reader + 21, sizeof(file_reader));
-                    //         strcpy(num_rates[count_search - 1], file_reader + 15);
-                    //         while (replace = strchr(num_rates, ',')) {
-                    //             *replace = ' ';
-                    //         }
-                    //         printf("Nombre d'évaluations : %s", num_rates);
-                    //         // printf("%s\n", file_reader);
-                    //     }
-
-                    //     if (strstr(file_reader, "product_id") != NULL) {
-                    //         printf("Article N°%d\n", ++count_search);
-                    //         // found = 1;
-                    //         puts("product found");
-                    //         puts("--------------------------------------\n");
-                    //     }
-                    // }
-
-
-                    // puts("Indiquez le numéro du produit que vous voulez (entre 1 et 10)");
-                    // while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10) {
-                    //     puts("Mauvais nombre");
-                    // }
-
-                    // puts("j'aime le paté");
-
+                    puts("Indiquez le numéro du produit que vous souhaitez traquer");
+                    while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10) {
+                        puts("Mauvais nombre");
+                    }
 
                     // //ENTREE DES VALEURS DANS LES VARIABLES POUR LES ENTRER EN BASE DE DONNEES
                     // fclose(read_file);
