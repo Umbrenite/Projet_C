@@ -53,9 +53,39 @@ int main(int argc, char **argv)
         write_curl(log_file_path, url);
 
         if (url != "") {
-        MYSQL *mysql = NULL;
-        connect_into_mysql(register_file_path, log_file_path, mysql);
-        }
+        // INITIALISATION DES VARIABLES DE DATABASE
+            char IP[30], db_username[30], db_pwd[30], db_name[30];
+
+            MYSQL *mysql = NULL;
+
+            FILE *rec;
+            rec = fopen(register_file_path, "r");
+            puts("[DÉTÉCTION DES IDENTIFIANTS]");
+            if (rec == NULL) // Si le fichier référencé n'existe pas, alors on demande à l'utilisateur de rentrer ses informations
+            {
+                puts("Votre fichier d'inscription n'existe pas. Vous devrez entrer vos identifiants manuellement.\n");
+                puts("Indiquez où se trouve de votre base de données");
+                scanf("%s", IP);
+                puts("Indiquez le nom de l'utilisateur qui souhaite accéder à la base de données");
+                scanf("%s", db_username);
+                puts("Indiquez maintenant le mot de passe de votre utilisateur");
+                scanf("%s", db_pwd);
+
+                printf("Ip : %s\n",IP);
+                printf("Username : %s\n",db_username);
+                printf("pass : %s\n",db_pwd);
+                register_identifiers(register_file_path, IP, db_username, db_pwd, rec);
+                puts("");
+            } else {
+                auto_connect(IP, db_username, db_pwd, rec);
+                printf("Ip : %s\n",IP);
+                printf("Username : %s\n",db_username);
+                printf("pass : %s\n",db_pwd);
+            }
+        connect_into_mysql(register_file_path, log_file_path, mysql, IP, db_username, db_pwd, db_name);
+        } else
+        puts("Une erreur a été détectée dans l'URL de l'API. Relancez-le programme.");
+        return EXIT_FAILURE;
     }
 //FIN DU CHOIX ÉCRIT
 

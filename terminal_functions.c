@@ -1,3 +1,4 @@
+//FONCTION DE CONFIRMATION DU CHEMIN DE log.txt
 void confirm_paths(char *log_file_path)
 {
     char confirm;                                                                                                 // On initialise une valeur pour demander confirmation à l'utilisateur du chemin de référence
@@ -26,7 +27,7 @@ void confirm_paths(char *log_file_path)
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+//FONCTION DE SELECTION DE MODE D'AFFICHAGE (GRAPHIQUE/TERMINAL)
 int select_mod()
 {
     int screen_mod = 0;
@@ -48,20 +49,20 @@ int select_mod()
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
             puts("Vous avez choisi de tracer votre objet graphiquement.\n");
             break;
-        default:                    // Si l'user rentre autre chose (Lettre, chiffre, caractères spé<ciaux...)
+        default: // Si l'user rentre autre chose (Lettre, chiffre, caractères spé<ciaux...)
             puts("Mauvais choix, recommencez");
             break;
         }
         if (screen_mod == '1' || screen_mod == '2')
         {
             puts("");
-            return (char) screen_mod;
+            return (char)screen_mod;
         }
     }
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+//FONCTION QUI VA PERMETTRE DE FORMER L'URL QUE LE SCRIPT VA UTILISER
 char *url_former()
 {
     puts("[RECHERCHE D'UN PRODUIT]\n");
@@ -84,7 +85,7 @@ char *url_former()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
-
+//FONCTION D'ÉCRITURE DU RÉSULTAT DE L'API DANS log.txt
 void write_curl(char *log_file_path, char *url)
 {
     CURL *curl;
@@ -124,15 +125,58 @@ void write_curl(char *log_file_path, char *url)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
-int ask_article() {
+//FONCTION QUI DEMANDE À L'UTILISATEUR QUEL ARTICLE IL VEUT SELECTIONNER
+int ask_article()
+{
     int ask_article = 0;
     puts("Indiquez le numéro du produit que vous souhaitez traquer");
-    while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10) {
-    puts("Mauvais nombre");
+    while (scanf("%d", &ask_article), ask_article < 1 || ask_article > 10)
+    {
+        puts("Mauvais nombre");
     }
     return ask_article;
 }
+//------------------------------------------------------------------------------------------------------------------
+//FONCTION DE SAUVEGARDE DES IDENTIFIANTS SI ILS ONT ÉTÉ RENTRÉS MANUELLEMENT PAR L'UTILISATEUR
+void* register_identifiers(char *register_file_path, char *IP, char* db_username, char* db_pwd, FILE* rec)
+{
+    char ask_rec;
 
+        // Une fois les identifiants rentrés, on va lui demander si il veut enregistrer les infos afin de pouvoir s'auto-connecter quand on relance le code
+        printf("Voulez-vous enregistrer vos informations de connexion pour ne plus avoir à les rentrer quand vous relancerez le code ? (y pour enregistrer, n pour passer)\n");
+        scanf("%s", &ask_rec);
+        switch (ask_rec) // On effectue un switch sur tous les cas possibles (y/n)
+        {
+        case 'y':                   // Si l'user écrit y, alors on enregistre les identifiants
+            printf("\e[1;1H\e[2J"); // Clear l'écran
+            puts("Vos identifiants seront enregistrés");
+            rec = fopen(register_file_path, "w");
+            fprintf(rec, "%s\n", IP);
+            fprintf(rec, "%s\n", db_username);
+            fprintf(rec, "%s\n", db_pwd);
+            fclose(rec);
+            break;
+        default:                    // Si l'user écrit n, alors on passe
+            printf("\e[1;1H\e[2J"); // Clear l'écran
+            puts("Vos identifiants ne seront pas enregistrés. Il faudra les retaper dans ce cas.");
+            break;
+        }
+}
+//------------------------------------------------------------------------------------------------------------------
+//FONCTION D'AUTO CONNEXION À LA BASE DE DONNÉES SI LE FICHIER Register.txt EXISTE
+void * auto_connect(char *IP, char* db_username, char* db_pwd, FILE* rec) {
+    { // Inscription des identifiants rentrés dans la base de données
+        printf("\n");
+        puts("[OK] Détection des identifiants réussie.");
+        fscanf(rec, "%s", IP);          // Récupération de l'IP
+        fscanf(rec, "%s", db_username); // Récupération du username référencé dans le fichier de *rec
+        fscanf(rec, "%s", db_pwd);      // Récupération du password référencé dans le fichier de *rec
+        // sleep(2);
+    }
+}
+
+//------------------------------------------------------------------------------------------------------------------
+// DANS LE CAS OU LA REQUÊTE S'EST MAL PASSÉE, ON RENVOIT UNE ERREUR
 void finish_with_error(MYSQL *mysql)
 {
     fprintf(stderr, "Une erreur a été détectée durant le processus de commandes SQL : %s\n", mysql_error(mysql));
@@ -140,17 +184,10 @@ void finish_with_error(MYSQL *mysql)
     exit(1);
 }
 
-void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql)
+void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql, char *IP, char *db_username, char *db_pwd, char *db_name)
 {
     char name[30];
     // DÉBUT MYSQL
-
-    // INITIALISATION DES VARIABLES DE DATABASE
-    char IP[30];
-    char db_username[30];
-    char db_pwd[30];
-    char db_name[30];
-    char ask_rec;
 
     // Initialisation bibliotheque mysql
     if (mysql_library_init(0, NULL, NULL) == 0)
@@ -162,51 +199,8 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
             fprintf(stdout, "[OK] la fonction mysql_init est bien prise en compte\n");
             // sleep(2);
-
-            FILE *rec;
-            rec = fopen(register_file_path, "r");
-            if (rec == NULL) // Si le fichier référencé n'existe pas, alors on demande à l'utilisateur de rentrer ses informations
-            {
-                puts("Votre fichier d'inscription n'existe pas, il sera donc créé.");
-                rec = fopen(register_file_path, "w");
-                puts("Indiquez où se trouve de votre base de données");
-                scanf("%s", IP);
-                puts("Indiquez le nom de l'utilisateur qui souhaite accéder à la base de données");
-                scanf("%s", db_username);
-                puts("Indiquez maintenant le mot de passe de votre utilisateur");
-                scanf("%s", db_pwd);
-
-                // Une fois les identifiants rentrés, on va lui demander si il veut enregistrer les infos afin de pouvoir s'auto-connecter quand on relance le code
-                printf("Voulez-vous enregistrer vos informations de connexion pour ne plus avoir à les rentrer quand vous relancerez le code ? (y pour enregistrer, n pour passer)\n");
-                scanf("%s", &ask_rec);
-                switch (ask_rec) // On effectue un switch sur tous les cas possibles (y/n)
-                {
-                case 'y':                   // Si l'user écrit y, alors on enregistre les identifiants
-                    printf("\e[1;1H\e[2J"); // Clear l'écran
-                    puts("Vos identifiants seront enregistrés");
-                    fprintf(rec, "%s\n", IP);
-                    fprintf(rec, "%s\n", db_username);
-                    fprintf(rec, "%s\n", db_pwd);
-                    break;
-                default:                    // Si l'user écrit n, alors on passe
-                    printf("\e[1;1H\e[2J"); // Clear l'écran
-                    puts("Vos identifiants ne seront pas enregistrés. Il faudra les retaper dans ce cas.");
-                    break;
-                }
-            }
-            else
-            { // Inscription des identifiants rentrés dans la base de données
+                // Connexion au serveur mysql
                 printf("\n");
-                puts("[DÉTÉCTION DES IDENTIFIANTS]");
-                puts("[OK] Détection des identifiants réussie.");
-                fscanf(rec, "%s", IP);          // Récupération de l'IP
-                fscanf(rec, "%s", db_username); // Récupération du username référencé dans le fichier de *rec
-                fscanf(rec, "%s", db_pwd);      // Récupération du password référencé dans le fichier de *rec
-                // sleep(2);
-            }
-
-            // Connexion au serveur mysql
-            printf("\n");
             printf("[MISE EN RELATION AVEC LA BASE DE DONNÉES]\n");
             if (mysql_real_connect(mysql, IP, db_username, db_pwd, "", 0, NULL, 0) != NULL)
             // Syntaxe : mysql_real_connect(mysql, IP,username,password,db); -> tentative de connection à la DB
@@ -214,122 +208,137 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                 fprintf(stdout, "[OK] Les identifiants récupérés depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
                 // sleep(2);
                 // DEBUT DES REQUÊTES MYSQL
-                    //Création de la table "c_project"
-                    if (mysql_query(mysql, "CREATE DATABASE IF NOT EXISTS c_project"))
+                // Création de la table "c_project"
+                if (mysql_query(mysql, "CREATE DATABASE IF NOT EXISTS c_project"))
+                {
+                    finish_with_error(mysql);
+                }
+                puts("[REQUÊTES SUR LA BASE DE DONNÉES]");
+                puts("Base de données créée\n");
+                // sleep(1);
+
+                // On entre dans la base de données que l'on vient de créer
+                if (mysql_query(mysql, "USE c_project"))
+                {
+                    finish_with_error(mysql);
+                }
+                puts("Nous utiliserons la base de données créée afin d'y insérer les données trouvées.");
+
+                if (mysql_query(mysql, "CREATE TABLE IF NOT EXISTS ARTICLES (id_article INT NOT NULL AUTO_INCREMENT,title VARCHAR(100) NOT NULL,price VARCHAR(10),stars VARCHAR(10),nb_eval VARCHAR(10),PRIMARY KEY(id_article));"))
+                // Commande pour créer la table produit si elle n'existe pas avec les colonnes ID, titre, prix, étoiles, nb_eval
+                {
+                    finish_with_error(mysql);
+                }
+
+                // sleep(3);
+
+                puts("D'après les résultats de notre recherche, nous avons trouvé ces résultats :");
+                // On affiche les 10 premiers résultats de la liste trouvée (titre, prix, avis, nombre d'avis)
+                FILE *read_file = fopen(log_file_path, "r");
+                if (read_file == NULL)
+                {
+                    fprintf(stderr, "Le fichier n'a pas pu être lu.");
+                    return;
+                }
+
+                char file_reader[150];
+                char title[150];     // Titre de l'objet
+                char price[150];     // Prix
+                char stars[150];     // Avis (nombre d'étoiles)
+                char num_rates[150]; // Nombre d'avis
+                char query[150];     // Sert à insérer des données
+
+                char title_array[10][150];     // Sauvegarde tableau Titre de l'objet
+                char price_array[10][150];     // Sauvegarde tableau Prix
+                char stars_array[10][150];     // Sauvegarde tableau Sauvegarde tableau Avis (nombre d'étoiles)
+                char num_rates_array[10][150]; // Sauvegarde tableau Nombre d'avis
+
+                int price_converted;
+                int count_search = 1;
+                int i = 0;
+                char *replace;
+
+                while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 11)
+                {
+
+                    if (strstr(file_reader, "product_id") != NULL)
                     {
-                        finish_with_error(mysql);
+                        printf("Article N°%d", count_search);
+                        puts("\n--------------------------------------");
                     }
-                    puts("[REQUÊTES SUR LA BASE DE DONNÉES]");
-                    puts("Base de données créée\n");
-                    // sleep(1);
 
-                    //On entre dans la base de données que l'on vient de créer
-                    if (mysql_query(mysql, "USE c_project"))
+                    if (strstr(file_reader, "title") != NULL)
                     {
-                        finish_with_error(mysql);
+                        memcpy(title, file_reader + 15, sizeof(file_reader));
+                        while (replace = strchr(title, ','))
+                        {
+                            *replace = ' ';
+                        }
+                        printf("Titre de l'article : %s", title);
+                        for (int j = 0; j < strlen(title); j++)
+                        {
+                            title_array[i][j] = title[j];
+                        }
                     }
-                    puts("Nous utiliserons la base de données créée afin d'y insérer les données trouvées.");
 
-                    if (mysql_query(mysql, "CREATE TABLE IF NOT EXISTS ARTICLES (id_article INT NOT NULL AUTO_INCREMENT,title VARCHAR(100) NOT NULL,price VARCHAR(10),stars VARCHAR(10),nb_eval VARCHAR(10),PRIMARY KEY(id_article));"))
-                    //Commande pour créer la table produit si elle n'existe pas avec les colonnes ID, titre, prix, étoiles, nb_eval
+                    if (strstr(file_reader, "price") != NULL)
                     {
-                        finish_with_error(mysql);
+                        memcpy(price, file_reader + 15, sizeof(file_reader));
+                        while (replace = strchr(price, ','))
+                        {
+                            *replace = ' ';
+                        }
+                        price_converted = atoi(price); // Convertit la chaîne de caractères de la variable *price* en integer
+                        printf("Prix : %d,%d€\n", price_converted / 100, price_converted % 100);
                     }
 
-                   
-                    // sleep(3);
-
-                    puts ("D'après les résultats de notre recherche, nous avons trouvé ces résultats :");
-                    //On affiche les 10 premiers résultats de la liste trouvée (titre, prix, avis, nombre d'avis)
-                    FILE *read_file = fopen(log_file_path, "r");
-                    if (read_file == NULL) {
-                        fprintf(stderr, "Le fichier n'a pas pu être lu.");
-                        return;
+                    if (strstr(file_reader, "num_reviews") != NULL)
+                    {
+                        memcpy(num_rates, file_reader + 21, sizeof(file_reader));
+                        while (replace = strchr(num_rates, ','))
+                        {
+                            *replace = ' ';
+                        }
+                        printf("Nombre d'évaluations : %s", num_rates);
+                        for (int j = 0; j < strlen(num_rates); j++)
+                        {
+                            num_rates_array[i][j] = num_rates[j];
+                        }
                     }
 
-                    char file_reader[150];
-                    char title[150]; //Titre de l'objet
-                    char price[150]; //Prix
-                    char stars[150]; //Avis (nombre d'étoiles)
-                    char num_rates[150]; //Nombre d'avis
-                    char query[150]; //Sert à insérer des données
-
-                    char title_array[10][150]; // Sauvegarde tableau Titre de l'objet
-                    char price_array[10][150]; //Sauvegarde tableau Prix
-                    char stars_array[10][150]; //Sauvegarde tableau Sauvegarde tableau Avis (nombre d'étoiles)
-                    char num_rates_array[10][150]; //Sauvegarde tableau Nombre d'avis
-
-                    int price_converted;
-                    int count_search = 1;
-                    int i = 0;
-                    char* replace;
-
-                    while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 11) {
-                        
-                        if (strstr(file_reader, "product_id") != NULL) {
-                            printf("Article N°%d",count_search);
-                            puts("\n--------------------------------------");
+                    if (strstr(file_reader, "stars") != NULL)
+                    {
+                        memcpy(stars, file_reader + 15, sizeof(file_reader));
+                        while (replace = strchr(stars, ','))
+                        {
+                            *replace = ' ';
                         }
-
-                        if (strstr(file_reader, "title") != NULL) {
-                            memcpy(title, file_reader + 15, sizeof(file_reader));
-                            while (replace = strchr(title, ',')) {
-                                *replace = ' ';
-                            }
-                            printf("Titre de l'article : %s", title);
-                            for (int j = 0; j < strlen(title); j++) {
-                                title_array[i][j] = title[j];
-                            }
-                            
+                        printf("Nombre d'étoiles : %s\n", stars);
+                        for (int j = 0; j < strlen(stars); j++)
+                        {
+                            stars_array[i][j] = stars[j];
                         }
-
-                        if (strstr(file_reader, "price") != NULL) {
-                            memcpy(price, file_reader + 15, sizeof(file_reader));
-                            while (replace = strchr(price, ',')) {
-                                *replace = ' ';
-                            }
-                            price_converted = atoi(price); //Convertit la chaîne de caractères de la variable *price* en integer
-                           printf("Prix : %d,%d€\n", price_converted/100, price_converted%100);
-                        }
-
-                        if (strstr(file_reader, "num_reviews") != NULL) {
-                            memcpy(num_rates, file_reader + 21, sizeof(file_reader));
-                            while (replace = strchr(num_rates, ',')) {
-                                *replace = ' ';
-                            }
-                            printf("Nombre d'évaluations : %s", num_rates); 
-                            for (int j = 0; j < strlen(num_rates); j++) {
-                                num_rates_array[i][j] = num_rates[j];
-                            }
-                        }
-
-                        if (strstr(file_reader, "stars") != NULL) {
-                            memcpy(stars, file_reader + 15, sizeof(file_reader));
-                            while (replace = strchr(stars, ',')) {
-                                *replace = ' ';
-                            }
-                            printf("Nombre d'étoiles : %s\n", stars);
-                            for (int j = 0; j < strlen(stars); j++) {
-                                stars_array[i][j] = stars[j];
-                            }
-                            count_search++;
-                            i++;
-                        }
-
+                        count_search++;
+                        i++;
                     }
 
-                    int id_article = ask_article();
-                    printf("Vous avez demandé l'article N°%d", id_article);
+                    if (feof(read_file))
+                    {
+                        puts("\nLe dernier article trouvé par notre API a été atteint.\n");
+                    }
+                }
 
-                    //COMMANDE POUR INSÉRER LES DONNEES DANS LES COLONNES CORRESPONDANTES DE LA TABLE c_project
-                    // sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', %s);", title[id_article],price[id_article],stars[id_article],num_rates[id_article]); 
-                    // mysql_query(mysql, query);
+                int id_article = ask_article();
+                printf("Vous avez demandé l'article N°%d", id_article);
 
-                    // if (mysql_query(mysql, "SELECT * FROM ARTICLES"))
-                    // {
-                    //     finish_with_error(mysql);
-                    // }
+                // COMMANDE POUR INSÉRER LES DONNEES DANS LES COLONNES CORRESPONDANTES DE LA TABLE c_project
+                sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', %s);", title[id_article], price[id_article], stars[id_article], num_rates[id_article]);
+                mysql_query(mysql, query);
 
+                if (mysql_query(mysql, "SELECT * FROM ARTICLES"))
+                {
+                    finish_with_error(mysql);
+                }
 
                 // FIN DES REQUÊTES MYSQL
             }
@@ -363,20 +372,3 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 
-// // DANS LE CAS OU LA REQUÊTE S'EST MAL PASSÉE, ON RENVOIT UNE ERREUR
-// void finish_with_error(mysql)
-// {
-//     fprintf(stderr, "%s\n", mysql_error(con));
-//     mysql_close(con);
-//     exit(1);
-// }
-
-// void mysql_requests()
-// {
-//     // DEBUT DES REQUÊTES MYSQL
-//     if (mysql_query(mysql, "SHOW TABLES"))
-//     {
-//         finish_with_error(mysql);
-//     }
-//     // FIN DES REQUÊTES MYSQL
-// }
