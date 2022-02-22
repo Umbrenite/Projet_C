@@ -332,7 +332,7 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                 printf("Vous avez demandé l'article N°%d", id_article);
 
                 // COMMANDE POUR INSÉRER LES DONNEES DANS LES COLONNES CORRESPONDANTES DE LA TABLE c_project
-                sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', %s);", title[id_article], price[id_article], stars[id_article], num_rates[id_article]);
+                sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', %s);", title, price, stars, num_rates);
                 mysql_query(mysql, query);
 
                 if (mysql_query(mysql, "SELECT * FROM ARTICLES"))
