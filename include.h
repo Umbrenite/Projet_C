@@ -13,6 +13,8 @@
 #include <ctype.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <wchar.h>
+#include <locale.h>
 
 void removeLineFeed(char* str) {
     str[strcspn(str, "\n")] = '\0';

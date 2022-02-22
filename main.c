@@ -1,10 +1,10 @@
 #include "include.h"
 
-// test du commit
 
 //DÉBUT DU SCRIPT
 int main(int argc, char **argv)
 {
+
 //DEBUT CONFIGURATION DU SCRIPT
     puts("AVANT LE LANCEMENT DU SCRIPT, VEUILLEZ VÉRIFIER QUE LES FICHIERS SOIENT RÉFÉRENCÉS AUX BONS EMPLACEMENTS \n");
 
