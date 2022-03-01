@@ -1,28 +1,18 @@
 #include "include.h"
 
-
-//DÉBUT DU SCRIPT
 int main(int argc, char **argv)
 {
 
-//DEBUT CONFIGURATION DU SCRIPT
+    //setlocale(LC_ALL, "");
+    //int *osef = L"Éé$&";
+    //wprintf(L"%ls\n", osef);
+
+// DÉBUT CONFIGURATION DU SCRIPT
     puts("AVANT LE LANCEMENT DU SCRIPT, VEUILLEZ VÉRIFIER QUE LES FICHIERS SOIENT RÉFÉRENCÉS AUX BONS EMPLACEMENTS \n");
-
-    //Initialisation du chemin du fichier de log
-    char log_file_path[PATH_MAX] = {0};
-
-    //Initialisation du chemin du fichier de register (Enregistrement des identifiants de connexion à la BDD)
-    char register_file_path[PATH_MAX] = {0};
-
-    //Initialisation du chemin du fichier Glade (Partie graphique)
-    char glade_file[PATH_MAX] = {0};
-
-    strcat(log_file_path, "../texts/log.txt");           //On concatène la chaîne de caractères "/texts/log.txt", cette partie étant statique
-    strcat(register_file_path, "../texts/register.txt"); //On concatène la chaîne de caractères "/texts/register.txt", cette partie étant statique
-    strcat(glade_file, "../test1.glade");                //On concatène la chaîne de caractères "/test1.glade", cette partie étant statique
+      
     if (log_file_path)
-    {                                                  //Si la variable HOME existe alors
-        confirm_paths(log_file_path);                  //Fonction qui permet de demander à l'user de vérifier ses chemins de fichiers.
+    {
+        confirm_paths(log_file_path); // Permet de demander à l'user de vérifier ses chemins de fichiers.
     }
     else
     {
@@ -32,11 +22,17 @@ int main(int argc, char **argv)
 
     if (access(log_file_path, F_OK) == 0 && !strcmp(log_file_path + strlen(log_file_path) - 7, "log.txt"))
     {
-        printf("\e[1;1H\e[2J"); //Clear l'écran
-        FILE *clear = fopen(log_file_path, "w"); //On clear le fichier de log.txt avant toute intervention
+        printf("\e[1;1H\e[2J"); // clear l'écran
+        FILE *clear = fopen(log_file_path, "w"); // on clear le fichier de log.txt avant toute intervention
+        if (clear == NULL)
+        {
+            puts("Erreur de traitement");
+            exit(1);
+        }
+        fclose(clear);
         printf("Fichier de log trouvé\n \n");
     }
-//FIN DE LA CONFIGURATION DU SCRIPT
+//FIN CONFIGURATION DU SCRIPT
 
 
 
@@ -52,9 +48,7 @@ int main(int argc, char **argv)
         char *url = url_former();
         write_curl(log_file_path, url);
 
-        if (url != "") {
-        // INITIALISATION DES VARIABLES DE DATABASE
-            char IP[30], db_username[30], db_pwd[30], db_name[30];
+        if (strlen(url) > 0) {
 
             MYSQL *mysql = NULL;
 
@@ -83,20 +77,24 @@ int main(int argc, char **argv)
                 printf("pass : %s\n",db_pwd);
             }
         connect_into_mysql(register_file_path, log_file_path, mysql, IP, db_username, db_pwd, db_name);
-        } else
+        }
+        else 
+        {
         puts("Une erreur a été détectée dans l'URL de l'API. Relancez-le programme.");
         return EXIT_FAILURE;
+        }
     }
 //FIN DU CHOIX ÉCRIT
 
 
 
-//DÉBUT DU CHOIX GRAPHIQUE
+// DÉBUT CHOIX GRAPHIQUE
     if (mod == '2')
-    {   //Mise en place de la fenêtre paramétrée dans "windows_create.c"
-        gtk_init(&argc, &argv); // initialise gtk et tous les paramètres qu'il reconnait/utilise dans le processus d'initialisation
-        create_window(glade_file);
+    {
+        gtk_init(&argc, &argv); // initialise gtk + tout paramètres qu'il reconnait/utilise dans processus d'initialisation
+        page_confirmation();
     }
-//FIN DU CHOIX GRAPHIQUE
+// FIN CHOIX GRAPHIQUE
+
+
 }
-//FIN DU SCRIPT
