@@ -68,6 +68,7 @@ int main(int argc, char **argv)
                 printf("Username : %s\n",db_username);
                 printf("pass : %s\n",db_pwd);
             }
+        puts("Notre API nous a permis de trouver une page de résultat. Nous allons traiter ces données.");
         connect_into_mysql(register_file_path, log_file_path, mysql, IP, db_username, db_pwd, db_name);
         }
         else 

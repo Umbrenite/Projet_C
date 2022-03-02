@@ -32,7 +32,7 @@ int select_mod()
 {
     int screen_mod = 0;
     // Printf du choix
-    puts("[CHOIX DE L'AFFICHAGE DU SCRIPT]\nDe quelle maniere voulez vous afficher votre tracker ? \n1 = A l'ecrit \n2 = Graphiquement \n");
+    puts("[CHOIX DE L'AFFICHAGE DU SCRIPT]\nDe quelle manière voulez-vous afficher votre tracker ? \n1 = Écrit \n2 = Graphique\n");
 
     // DÉBUT DE LA SELECTION
     while (screen_mod != '1' && screen_mod != '2') // Tant que la variable screen_mod est différente de 1 ET de 2 (Les deux choix)
@@ -115,7 +115,6 @@ void write_curl(char *log_file_path, char *url)
 
         /* always cleanup */
         curl_easy_cleanup(curl);
-        puts("Notre API nous a permis de trouver une page de résultat. Nous allons traiter ces données.");
     }
 }
 
@@ -134,28 +133,33 @@ unsigned int ask_article()
 
 
 // FONCTION DE SAUVEGARDE DES IDENTIFIANTS SI ILS ONT ÉTÉ RENTRÉS MANUELLEMENT PAR L'UTILISATEUR
-void *register_identifiers(char *register_file_path, char *IP, char *db_username, char *db_pwd, FILE *rec)
+void register_identifiers(char *register_file_path, char *IP, char *db_username, char *db_pwd, FILE *rec)
 {
-    char ask_rec;
+    char ask_rec[2];
 
     // Une fois les identifiants rentrés, on va lui demander si il veut enregistrer les infos afin de pouvoir s'auto-connecter quand on relance le code
     printf("Voulez-vous enregistrer vos informations de connexion pour ne plus avoir à les rentrer quand vous relancerez le code ? (y pour enregistrer, n pour passer)\n");
     scanf("%s", &ask_rec);
-    switch (ask_rec) // On effectue un switch sur tous les cas possibles (y/n)
+    switch (*ask_rec) // On effectue un switch sur tous les cas possibles (y/n)
     {
-    case 'y':                   // Si l'user écrit y, alors on enregistre les identifiants
-        printf("\e[1;1H\e[2J"); // Clear l'écran
-        puts("Vos identifiants seront enregistrés");
-        rec = fopen(register_file_path, "w");
-        fprintf(rec, "%s\n", IP);
-        fprintf(rec, "%s\n", db_username);
-        fprintf(rec, "%s\n", db_pwd);
-        fclose(rec);
-        break;
-    default:                    // Si l'user écrit n, alors on passe
-        printf("\e[1;1H\e[2J"); // Clear l'écran
-        puts("Vos identifiants ne seront pas enregistrés. Il faudra les retaper dans ce cas.");
-        break;
+        case 'y':                   // Si l'user écrit y, alors on enregistre les identifiants
+            printf("\e[1;1H\e[2J"); // Clear l'écran
+            puts("Vos identifiants seront enregistrés");
+            rec = fopen(register_file_path, "w");
+            if (rec == NULL){
+                printf("ça bug");
+                exit(1);
+            }
+            fprintf(rec, "%s\n", IP);
+            fprintf(rec, "%s\n", db_username);
+            fprintf(rec, "%s\n", db_pwd);
+            fclose(rec);
+            break;
+            
+        default:                    // Si l'user écrit n, alors on passe
+            printf("\e[1;1H\e[2J"); // Clear l'écran
+            puts("Vos identifiants ne seront pas enregistrés. Il faudra les retaper dans ce cas.");
+            break;
     }
 }
 
@@ -181,6 +185,7 @@ void finish_with_error(MYSQL *mysql)
     exit(1);
 }
 
+
 //------------------------------------------------------------------
 void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql, char *IP, char *db_username, char *db_pwd, char *db_name)
 {
@@ -189,6 +194,7 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
     // Initialisation bibliotheque mysql
     if (mysql_library_init(0, NULL, NULL) == 0)
     {
+        mysql = mysql_init(NULL);
         if (mysql != NULL) // Si le pointeur est bien initialisé
         {
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
@@ -358,6 +364,7 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                     puts(mysql_error(mysql));
                     }
                 mysql_query(mysql, query);
+                exit(0);
 
                 // FIN DES REQUÊTES MYSQL
             }
@@ -369,7 +376,6 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
 
             // Fermeture de la connexion / Liberation memoire mysql
             mysql_close(mysql);
-            mysql = NULL;
         }
         else
         {

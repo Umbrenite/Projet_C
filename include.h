@@ -22,6 +22,7 @@ char glade_file[PATH_MAX] = {0};
 #define GLADE_CONFIRMATION "../build/confirmation.glade" 
 #define GLADE_ENTER "../build/enter.glade"
 #define GLADE_ARTICLES "../build/articles.glade"
+#define GLADE_COMMANDE "../build/commande.glade"
 
 //Initialisation du chemin du fichier de log
 char log_file_path[PATH_MAX] = "../texts/log.txt";
@@ -37,10 +38,10 @@ MYSQL *mysql = NULL;
 char url[101];
 
 // Initialisation des variables pour l'affichage des articles en mode graphique
-char file_reader[50];    // Lignes du fichier log
+char file_reader[40];    // Lignes du fichier log
 char title[10][50];      // Titre de l'article
 char price[10][150];      // Prix de l'article
-char stars[10][150];      // Avis de l'article (nombre d'étoiles) 
+char stars[10][10];      // Avis de l'article (nombre d'étoiles) 
 char num_rates[10][150];  // Nombre d'avis de l'article
 char query[1024];          // Pour l'insertion des données
 int price_converted;      // Prix converti
