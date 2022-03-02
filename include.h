@@ -18,7 +18,7 @@
 
 char glade_file[PATH_MAX] = {0};
 
-// constante créée par préprocesseur pour la partie graphique
+// constantes créée par le préprocesseur pour la partie graphique
 #define GLADE_CONFIRMATION "../build/confirmation.glade" 
 #define GLADE_ENTER "../build/enter.glade"
 #define GLADE_ARTICLES "../build/articles.glade"
@@ -42,7 +42,7 @@ char title[10][50];      // Titre de l'article
 char price[10][150];      // Prix de l'article
 char stars[10][150];      // Avis de l'article (nombre d'étoiles) 
 char num_rates[10][150];  // Nombre d'avis de l'article
-char query[150];          // Pour l'insertion des données
+char query[1024];          // Pour l'insertion des données
 int price_converted;      // Prix converti
 int before_coma;          // Chiffres avant la virgule pour le prix
 int after_coma;           // Chiffres après la virgule pour le prix

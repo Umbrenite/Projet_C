@@ -4,7 +4,7 @@ GtkWidget *window_art;
 GtkWidget *entry_ent;
 GtkWidget *entry_art;
 
-void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, char *IP, char *db_username, char *db_pwd, char *db_name)
+void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, char *IP, char *db_username, char *db_pwd, char *db_name) // Récupération des infos articles
 {
     char name[30];
     if (mysql_library_init(0, NULL, NULL) == 0) // Initialisation bibliothèque MySQL
@@ -157,16 +157,16 @@ void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, 
     }
 }
 
-void url_replace(char data[56]) {
-    char *replace; // Pointeur de remplacement de l'espace par un underscore
-    while (replace = strchr(data, ' ')) // Remplacement les espaces par un signe "+"
+void url_replace(char data[56]) { // Remplacement les espaces par un signe "+"
+    char *replace;
+    while (replace = strchr(data, ' '))
     {
         *replace = '+';
     }
     int url_former = snprintf(url, 100, "https://api.zinc.io/v1/search?query=%s&retailer=amazon", data);
 }
 
-int database_identifiers() {
+int database_identifiers() { // Vérification et récupération des idientifiants de connexion à la bdd
 
     if (strlen(url) > 0) {
 
@@ -205,7 +205,7 @@ int database_identifiers() {
 
 }
 
-void page_confirmation(){
+void page_confirmation(){  // Affichage de la page confirmation.glade
 
             strcpy(glade_file, GLADE_CONFIRMATION);
 
@@ -242,7 +242,7 @@ void page_confirmation(){
             gtk_main(); // surveille les signaux et regarde les événements
 }
 
-void page_enter(){
+void page_enter(){ // Affichage de la page enter.glade
 
     strcpy(glade_file, GLADE_ENTER);
 
@@ -274,7 +274,7 @@ void page_enter(){
     gtk_main(); // surveille les signaux et regarde les événements
 }
 
-void page_articles(){
+void page_articles(){ // Affichage de la page articles.glade
 
     strcpy(glade_file, GLADE_ARTICLES);
 
@@ -393,20 +393,20 @@ void page_articles(){
     gtk_main(); // surveille les signaux et regarde les événements
 }
 
-void on_buttonn_clicked(){ // fait
+void on_buttonn_clicked(){ // bouton Non de la page confirmation.glade
     gtk_widget_destroy(window_conf);
 };
 
-void on_buttony_clicked(){ // fait
+void on_buttony_clicked(){ // bouton Oui de la page confirmation.glade
     gtk_widget_destroy(window_conf);
     page_enter();
 };
 
-void on_buttonrm_ent_clicked() { // fait
+void on_buttonrm_ent_clicked() { // bouton Remove de la page enter.glade
     gtk_entry_set_text(GTK_ENTRY(entry_ent), "");
 }
 
-void on_buttonok_ent_clicked() {
+void on_buttonok_ent_clicked() { // bouton OK de la page enter.glade
 
     char data[56];
     strcpy(data, gtk_entry_get_text(GTK_ENTRY(entry_ent))); // Récup le contenu de l'input
@@ -427,11 +427,11 @@ void on_buttonok_ent_clicked() {
     }
 }
 
-void on_buttonrm_art_clicked() { // fait
+void on_buttonrm_art_clicked() { // bouton Remove de la page articles.glade
     gtk_entry_set_text(GTK_ENTRY(entry_art), "");
 }
 
-void on_buttonok_art_clicked() {
+void on_buttonok_art_clicked() {  // bouton OK de la page articles.glade
 
     char num_art[1];
     strcpy(num_art, gtk_entry_get_text(GTK_ENTRY(entry_art))); // Récup le contenu de l'input
@@ -439,14 +439,29 @@ void on_buttonok_art_clicked() {
 
     if (0 < num_art < 10)
     {
-        // Pour insérer en bdd
-        sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', '%s');", title[id_art - 1], price[id_art - 1], stars[id_art - 1], num_rates[id_art - 1]);
-        printf("Requête générée  : %s",query);
-        if (query == NULL){
-            puts(mysql_error(mysql));
+        if (mysql_library_init(0, NULL, NULL) == 0) // Initialisation bibliothèque MySQL
+        {
+            mysql = mysql_init(NULL); // Initialisation pointeur MySQL
+            if (mysql != NULL)
+            {
+                if (query == NULL){
+                    puts(mysql_error(mysql));
+                }
+                if (mysql_real_connect(mysql, IP, db_username, db_pwd, "", 0, NULL, 0) != NULL)
+                {
+                    fprintf(stdout, "[OK] Les identifiants récupérés depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
+                            // Pour insérer en bdd
+                    sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', '%s');", title[id_art - 1], price[id_art - 1], stars[id_art - 1], num_rates[id_art - 1]);
+                    printf("Requête générée  : %s",query);
+
+                    if (mysql_query(mysql, "USE c_project")) // On rentre dans la base de données
+                    {
+                        finish_with_error(mysql);
+                    }
+                    mysql_query(mysql,query);
+                }
+            }
         }
-        mysql_query(mysql, query);
-        //
 
         gtk_widget_destroy(window_art); // détruit la fenêtre articles.glade
     }

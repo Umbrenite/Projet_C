@@ -169,7 +169,6 @@ void *auto_connect(char *IP, char *db_username, char *db_pwd, FILE *rec)
         fscanf(rec, "%s", IP);          // Récupération de l'IP
         fscanf(rec, "%s", db_username); // Récupération du username référencé dans le fichier de *rec
         fscanf(rec, "%s", db_pwd);      // Récupération du password référencé dans le fichier de *rec
-        // sleep(2);
     }
 }
 
@@ -185,19 +184,16 @@ void finish_with_error(MYSQL *mysql)
 //------------------------------------------------------------------
 void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql, char *IP, char *db_username, char *db_pwd, char *db_name)
 {
-    char name[30];
     // DÉBUT MYSQL
 
     // Initialisation bibliotheque mysql
     if (mysql_library_init(0, NULL, NULL) == 0)
     {
-        // Initialisation du pointeur MYSQL
-        mysql = mysql_init(NULL);
         if (mysql != NULL) // Si le pointeur est bien initialisé
         {
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
             fprintf(stdout, "[OK] la fonction mysql_init est bien prise en compte\n");
-            // sleep(2);
+            
             // Connexion au serveur mysql
             printf("\n");
             printf("[MISE EN RELATION AVEC LA BASE DE DONNÉES]\n");
@@ -205,7 +201,8 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
             // Syntaxe : mysql_real_connect(mysql, IP,username,password,db); -> tentative de connection à la DB
             {
                 fprintf(stdout, "[OK] Les identifiants récupérés depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
-                // sleep(2);
+
+
                 // DEBUT DES REQUÊTES MYSQL
 
                 // Création de la table "c_project"
@@ -214,7 +211,6 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                     finish_with_error(mysql);
                 }
                 puts("[REQUÊTES SUR LA BASE DE DONNÉES]");
-                // sleep(1);
 
                 // On entre dans la base de données que l'on vient de créer
                 if (mysql_query(mysql, "USE c_project"))
