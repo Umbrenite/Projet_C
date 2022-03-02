@@ -37,8 +37,8 @@ MYSQL *mysql = NULL;
 char url[101];
 
 // Initialisation des variables pour l'affichage des articles en mode graphique
-char file_reader[150];    // Lignes du fichier log
-char title[10][150];      // Titre de l'article
+char file_reader[50];    // Lignes du fichier log
+char title[10][50];      // Titre de l'article
 char price[10][150];      // Prix de l'article
 char stars[10][150];      // Avis de l'article (nombre d'étoiles) 
 char num_rates[10][150];  // Nombre d'avis de l'article

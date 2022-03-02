@@ -78,23 +78,16 @@ void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, 
                 // DÉBUT PARTIE articles.glade
                 while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 10)
                 {
-                    // RECUPERATION DE L'ID (+ Affichage de l'ID de l'article)
-                    if (strstr(file_reader, "product_id") != NULL) // SI IL TROUVE LA CHAINE "product_id" ALORS IL EXECUTE LE TRAITEMENT
-                    {
-                        printf("Article N°%d", count_search);
-                        puts("\n--------------------------------------");
-                    }
 
                     // RECUPERATION DU TITRE
                     if (strstr(file_reader, "title") != NULL) // if chaine "title" exist
                     {
                         memcpy(title[i], file_reader + 15, sizeof(file_reader)); // OPTIMISATION DE LA VARIABLE POUR N'AVOIR QUE CE QUI NOUS INTERESSE
-                        // BOUCLE DE REMPLACEMENT DE CARACTERES
-                        while (replace = strchr(title[i], ','))
+
+                        while (replace = strchr(title[i], '"')) // remplacement de caractère
                         {
                             *replace = ' ';
                         }
-                        printf("Titre de l'article : %s\n", title[i]);
                     }
 
                     // RECUPERATION DU PRIX
@@ -110,7 +103,6 @@ void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, 
                         // On sépare les nombres en deux variables afin de pouvoir les réutiliser derrière
                         before_coma = price_converted / 100;
                         after_coma = price_converted % 100;
-                        printf("Prix : %d,%d€\n", before_coma, after_coma);
                         sprintf(price[i], "%d,%d", before_coma, after_coma); // On push à la ligne i du tableau price le prix avec une virgule
                     }
 
@@ -123,7 +115,6 @@ void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, 
                         {
                             *replace = ' ';
                         }
-                        printf("Nombre d'évaluations : %s", num_rates[i]);
                     }
 
                     // RECUPERATION DU NOMBRE D'ÉTOILES (+ Processus de développement vers un tableau)
@@ -135,7 +126,6 @@ void give_articles(char *register_file_path, char *log_file_path, MYSQL *mysql, 
                         {
                             *replace = ' ';
                         }
-                        printf("Nombre d'étoiles : %s\n", stars[i]);
                         count_search++;
                         i++;
                     }
@@ -417,7 +407,6 @@ void on_buttonrm_ent_clicked() { // fait
 }
 
 void on_buttonok_ent_clicked() {
-    // ici nous voulons passé à la pop-up suivante et récupérer le contenu de entry_ent
 
     char data[56];
     strcpy(data, gtk_entry_get_text(GTK_ENTRY(entry_ent))); // Récup le contenu de l'input
@@ -430,17 +419,35 @@ void on_buttonok_ent_clicked() {
         write_curl(log_file_path, url); // récupération des articles dans log.txt via curl et l'url
 
         int identifiers_status = database_identifiers(); // détection des identiants
-        if (identifiers_status == 1)
+        if (identifiers_status == 1) // identifiants existent
         { 
-            // maintenant il faut afficher articles.glade avec à l'intérieur de celui-ci les articles de log.txt
             give_articles(register_file_path, log_file_path, mysql, IP, db_username, db_pwd, db_name);
             page_articles();
         }
     }
-    else {
-        puts("Veuillez rentrer le nom du produit que vous souhaitez tracer !");
-    }
-
 }
 
+void on_buttonrm_art_clicked() { // fait
+    gtk_entry_set_text(GTK_ENTRY(entry_art), "");
+}
 
+void on_buttonok_art_clicked() {
+
+    char num_art[1];
+    strcpy(num_art, gtk_entry_get_text(GTK_ENTRY(entry_art))); // Récup le contenu de l'input
+    unsigned int id_art = atoi(num_art);
+
+    if (0 < num_art < 10)
+    {
+        // Pour insérer en bdd
+        sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', '%s');", title[id_art - 1], price[id_art - 1], stars[id_art - 1], num_rates[id_art - 1]);
+        printf("Requête générée  : %s",query);
+        if (query == NULL){
+            puts(mysql_error(mysql));
+        }
+        mysql_query(mysql, query);
+        //
+
+        gtk_widget_destroy(window_art); // détruit la fenêtre articles.glade
+    }
+}

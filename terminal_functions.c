@@ -270,20 +270,7 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                     return;
                 }
 
-                char file_reader[150];
-                char title[10][150];     // Titre de l'objet
-                char price[10][150];     // Prix
-                char stars[10][150];     // Avis (nombre d'étoiles)
-                char num_rates[10][150]; // Nombre d'avis
-                char query[150];     // Sert à insérer des données
-
-                int price_converted;  // Prix converti (en int)
-                int before_coma;      // Chiffres avant la virgule du Prix
-                int after_coma;       // Chiffres après la virgule du prix
-                int count_search = 1; // Compteur de recherches (10 recherches)
-                int i = 0;            // Boucle d'itérations
-                char *replace;        // Remplacement temporaire des valeurs
-
+                // DÉBUT DE L'AFFICHAGE EN LIGNE DE COMMADE
                 while (fgets(file_reader, sizeof(file_reader), read_file) && count_search < 11)
                 {
 
