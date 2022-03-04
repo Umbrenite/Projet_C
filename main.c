@@ -12,7 +12,8 @@ int main(int argc, char **argv)
     if (mod == '1')
     {
         // DÉBUT CONIFRMATION CHEMIN
-        puts("AVANT LE LANCEMENT DU SCRIPT, VEUILLEZ VÉRIFIER QUE LES FICHIERS SOIENT RÉFÉRENCÉS AUX BONS EMPLACEMENTS \n");
+        puts("Avant le lancement du script, des vérifications sont nécessaires.\n");
+        sleep(1);
         if (log_file_path)
         {
             confirm_paths(log_file_path); // Permet de demander à l'user de vérifier ses chemins de fichiers.
@@ -34,6 +35,8 @@ int main(int argc, char **argv)
             }
             fclose(clear);
             printf("Fichier de log trouvé\n \n");
+            sleep(2);
+            printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal (clear)
         }
         // FIN CONIFRMATION CHEMIN
 

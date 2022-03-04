@@ -1,14 +1,18 @@
 // FONCTION DE CONFIRMATION DU CHEMIN DE log.txt
 void confirm_paths(char *log_file_path)
 {
-    char confirm;                                                                                                 // On initialise une valeur pour demander confirmation à l'utilisateur du chemin de référence
-    printf("Veuillez confirmer que le chemin de votre fichier de log se trouve ici : %s (y/n)\n", log_file_path); // On demande à l'user de confirmer si le log.txt se trouve ici
+    char confirm;                                                                                              // On initialise une valeur pour demander confirmation à l'utilisateur du chemin de référence
+    sleep(1);
+    printf("Veuillez confirmer que le chemin de votre fichier de log se trouve ici : %s \n\n", log_file_path); // On demande à l'user de confirmer si le log.txt se trouve ici
+    sleep(2);
 
     // DEBUT DE LA BOUCLE
-    while (scanf("%c", &confirm), confirm != 'n' && confirm != 'y')
-    {
-        puts("Je n'ai pas compris votre requête. Écrivez 'y' si vous confirmez votre demande et 'n' pour la réfuter.");
-    }
+    do {
+        puts("Écrivez 'y' pour confirmer ou 'n' pour refuser.");
+        scanf(" %c", &confirm);
+        if (confirm == 'n') break;
+        if (confirm == 'y') break;
+    } while (true);
 
     if (confirm == 'n') // S'il ne confirme pas, on lui demande de rentrer le chemin manuellement
     {
@@ -32,7 +36,7 @@ int select_mod()
 {
     int screen_mod = 0;
     // Printf du choix
-    puts("[CHOIX DE L'AFFICHAGE DU SCRIPT]\nDe quelle manière voulez-vous afficher votre tracker ? \n1 = Écrit \n2 = Graphique\n");
+    puts("[CHOIX DE L'AFFICHAGE DU SCRIPT]\nDe quelle manière souhaitez-vous afficher votre tracker ?\n\n1 = Écrit \n2 = Graphique\n");
 
     // DÉBUT DE LA SELECTION
     while (screen_mod != '1' && screen_mod != '2') // Tant que la variable screen_mod est différente de 1 ET de 2 (Les deux choix)
@@ -43,11 +47,18 @@ int select_mod()
         {
         case '1':                   // Si l'user écrit 1
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal (clear)
-            puts("Vous avez choisi de tracer votre objet depuis votre terminal.\n");
+            sleep(1);
+            puts("\nVous avez choisi de tracker votre objet depuis votre terminal.\n");
+            sleep(1);
+            puts("[VEUILLEZ PATIENTER]");
+            sleep(3);
+            printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal (clear)
             break;
         case '2':                   // Si l'user écrit 2
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal (clear)
-            puts("Vous avez choisi de tracer votre objet graphiquement.\n");
+            sleep(2);
+            puts("Vous avez choisi de tracker votre objet graphiquement.\n");
+            sleep(3);
             break;
         default: // Si l'user rentre autre chose (Lettre, chiffre, caractères spéciaux...)
             puts("Mauvais choix, recommencez");
@@ -66,7 +77,8 @@ int select_mod()
 char *url_former()
 {
     puts("[RECHERCHE D'UN PRODUIT]\n");
-    puts("Entrez maintenant le nom du produit que vous souhaitez tracer \n"); // On indique le nom du produit recherché
+    sleep(1);
+    puts("Entrez maintenant le nom du produit que vous souhaitez tracker \n"); // On indique le nom du produit recherché
     char data[100] = {0};
     char *replace; // Pointeur de remplacement de l'espace par un underscore
     scanf("%c", &data);
@@ -189,7 +201,6 @@ void finish_with_error(MYSQL *mysql)
 //------------------------------------------------------------------
 void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *mysql, char *IP, char *db_username, char *db_pwd, char *db_name)
 {
-    // DÉBUT MYSQL
 
     // Initialisation bibliotheque mysql
     if (mysql_library_init(0, NULL, NULL) == 0)
@@ -199,15 +210,17 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
         {
             printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
             fprintf(stdout, "[OK] la fonction mysql_init est bien prise en compte\n");
+            sleep(1);
             
             // Connexion au serveur mysql
             printf("\n");
             printf("[MISE EN RELATION AVEC LA BASE DE DONNÉES]\n");
+            sleep(1);
             if (mysql_real_connect(mysql, IP, db_username, db_pwd, "", 0, NULL, 0) != NULL)
             // Syntaxe : mysql_real_connect(mysql, IP,username,password,db); -> tentative de connection à la DB
             {
-                fprintf(stdout, "[OK] Les identifiants récupérés depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
-
+                fprintf(stdout, "[OK] Les identifiants depuis le fichier Register.txt ont été reconnus par la base MySQL\n \n");
+                sleep(1);
 
                 // DEBUT DES REQUÊTES MYSQL
 
@@ -217,6 +230,8 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                     finish_with_error(mysql);
                 }
                 puts("[REQUÊTES SUR LA BASE DE DONNÉES]");
+                sleep(2);
+                printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal
 
                 // On entre dans la base de données que l'on vient de créer
                 if (mysql_query(mysql, "USE c_project"))
@@ -246,24 +261,23 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
 
                 MYSQL_ROW row;
 
-                puts("La dernière fois que vous aviez lancé le code, vous aviez tracké ceci :\n");
                 while ((row = mysql_fetch_row(result)))
                 {
+                    puts("La dernière fois que vous aviez lancé le code, vous aviez tracké ceci :\n");
+                    sleep(1);
                     printf("ID dans la table:%s \n", row[0] ? row[0] : "NULL");
                     printf("Titre :%s\n", row[1] ? row[1] : "NULL");
                     printf("Prix :%s \n", row[2] ? row[2] : "NULL");
                     printf("Nombre d'évaluations :%s", row[3] ? row[3] : "NULL");
                     printf("Nombre d'étoiles :%s \n", row[4] ? row[4] : "NULL");
-
                     printf("\n");
                 }
 
                 mysql_free_result(result);
-                puts("Nous utiliserons la base de données créée afin d'y insérer les données trouvées.");
+                //puts("Nous utiliserons la base de données créée afin d'y insérer les données trouvées.");
 
-                // sleep(3);
-
-                puts("D'après les résultats de notre recherche, nous avons trouvé ces résultats :");
+                puts("D'après votre demande, voici ce que l'API à trouvé pour vous !\n");
+                sleep(3);
                 // On affiche les 10 premiers résultats de la liste trouvée (titre, prix, avis, nombre d'avis)
                 FILE *read_file = fopen(log_file_path, "r");
                 if (read_file == NULL)
@@ -308,7 +322,7 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
                         // On sépare les nombres en deux variables afin de pouvoir les réutiliser derrière
                         before_coma = price_converted / 100;
                         after_coma = price_converted % 100;
-                        printf("Prix : %d,%d€\n", before_coma, after_coma);
+                        printf("Prix : %d,%d$\n", before_coma, after_coma);
                         sprintf(price[i], "%d,%d", before_coma, after_coma); // On push à la ligne i du tableau price le prix avec une virgule
                     }
 
@@ -347,19 +361,37 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
 
                 // ON DEMANDE À L'UTILISATEUR QUEL ARTICLE IL VEUT SELECTIONNER
 
+                sleep(1);
                 unsigned int id_article = ask_article();
+                sleep(1);
 
                 // ON AFFICHE LES DONNÉES POUR CONFIRMER CE QUE L'ON A SELECTIONNÉ
+                printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal (clear)
+                sleep(1);
                 printf("Vous avez demandé l'article N°%u\n", id_article);
-                puts("Il contient les informations suivantes :");
+                sleep(1);
+                puts("\nIl contient les informations suivantes :");
+                sleep(1);
                 printf("Titre : %s \n", title[id_article - 1]);
-                printf("Prix : %s \n", price[id_article - 1]);
-                printf("Nombre d'évaluations : %s \n", num_rates[id_article - 1]);
-                printf("Nombre d'étoiles : %s", stars[id_article-1]);
+                sleep(1);
+                printf("Prix : %s$ \n", price[id_article - 1]);
+                sleep(1);
+                printf("Nombre d'évaluations : %s", num_rates[id_article - 1]);
+                sleep(1);
+                printf("Nombre d'étoiles : %s \n", stars[id_article-1]);
 
                 // COMMANDE POUR INSÉRER LES DONNEES DANS LES COLONNES CORRESPONDANTES DE LA TABLE c_project
                 sprintf(query, "INSERT INTO ARTICLES (title, price, stars, nb_eval) VALUES ('%s', '%s', '%s', '%s');", title[id_article - 1], price[id_article - 1], stars[id_article - 1], num_rates[id_article - 1]);
-                printf("Requête générée  : %s",query);
+                printf("Requête générée, veuillez vérifier dans votre base de données");
+                puts("");
+                puts("");
+
+                puts("L'application s'arrêtera dans 5 secondes");
+                sleep(5);
+                printf("\e[1;1H\e[2J"); // Ctrl+L sur terminal (clear)
+                
+                sleep(1);
+                //printf("Requête générée  : %s",query);
                 if (query == NULL){
                     puts(mysql_error(mysql));
                     }
@@ -391,6 +423,4 @@ void connect_into_mysql(char *register_file_path, char *log_file_path, MYSQL *my
         fprintf(stderr, "[ERR] une erreur dans la librairie mysql_library_init a été détéctée  : '%s'\n", mysql_error(mysql));
         exit(EXIT_FAILURE);
     }
-
-    // FIN MYSQL
 }
